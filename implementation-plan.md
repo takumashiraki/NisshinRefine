@@ -12,10 +12,10 @@
     - AI Agent( agent teams )複数並列で実行するため、 pacakege by feature と atomic Design で実装
   - `apps/backend`
     - AI Agent( agent teams )複数並列で実行するため、 クリーンアーキテクチャ 兼 pacakege by feature で実装
-  - `apps/docs`
+  - `docs`
   - `packages/api-types`
-  - `packages/validation`
-  - `packages/ui`
+  - `app/packages/validation`
+  - `apps/frontend/ui`
 - **0-2: パッケージマネージャ・ツールチェーン**
   - Bun を前提に `package.json` / `bunfig.toml`（または相当の設定）を整備
   - `turbo` もしくは `biome` / `oxlint` などのモノレポ・Lint ツール検討（必要なら）
@@ -126,4 +126,3 @@
 5. フェーズ 6 でテストと品質を底上げ
 
 以降、詳細な機能（TTS、アバター生成、マルチモーダル RAG 等）は、上記フェーズをベースに個別の設計・実装タスクとして切り出していく。
-
