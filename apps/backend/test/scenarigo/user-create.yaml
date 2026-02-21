@@ -1,0 +1,11 @@
+schemaVersion: config/v1
+scenarios:
+  - name: create user success
+    steps:
+      - request:
+          method: POST
+          path: /users
+          body:
+            application/json:
+              userId: user_001
+              password: secret1234

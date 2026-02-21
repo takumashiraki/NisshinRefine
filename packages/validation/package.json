@@ -1,0 +1,19 @@
+{
+  "name": "@nisshin/validation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'validation: no build step yet'",
+    "dev": "echo 'validation: no dev step'",
+    "lint": "echo 'validation: lint skipped (tooling not installed)'",
+    "test": "echo 'validation: no tests yet'",
+    "typecheck": "echo 'validation: typecheck skipped'"
+  },
+  "dependencies": {
+    "zod": "^3.24.1",
+    "@hono/zod-openapi": "^0.18.3"
+  }
+}
