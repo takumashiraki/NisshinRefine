@@ -5,10 +5,15 @@
   "type": "module",
   "scripts": {
     "build": "echo 'frontend: build command placeholder'",
-    "dev": "echo 'frontend: dev command placeholder'",
+    "dev": "next dev",
     "lint": "echo 'frontend: lint skipped (tooling not installed)'",
     "test": "echo 'frontend: test placeholder'",
     "typecheck": "echo 'frontend: typecheck placeholder'"
+  },
+  "devDependencies": {
+    "@types/node": "25.3.0",
+    "@types/react": "19.2.14",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "next": "^15.1.0",

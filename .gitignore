@@ -16,3 +16,12 @@ _site/
 # counterproductive to check this file into the repository.
 # Details at https://github.com/github/pages-gem/issues/768
 Gemfile.lock
+
+# Node.js dependencies
+node_modules/
+
+# Next.js build artifacts
+apps/frontend/.next/
+
+# Cloudflare Wrangler local state
+apps/backend/.wrangler/
