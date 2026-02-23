@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import type { Context } from 'hono'
 import UserDatabase from './../../infrastructure/user'
 import type { Env } from './../../app'

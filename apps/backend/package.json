@@ -6,7 +6,8 @@
   "scripts": {
     "build": "echo 'backend: build command placeholder'",
     "dev": "wrangler dev",
-    "lint": "echo 'backend: lint skipped (tooling not installed)'",
+    "openapi:export": "bun run scripts/export-openapi.ts",
+    "lint": "oxlint src scripts",
     "test": "echo 'backend: test placeholder'",
     "typecheck": "echo 'backend: typecheck placeholder'"
   },
@@ -17,6 +18,7 @@
     "hono": "^4.6.13",
     "@hono/zod-openapi": "^0.18.3",
     "@hono/swagger-ui": "^0.5.0",
+    "@nisshin/validation": "workspace:*",
     "zod": "^3.24.1"
   }
 }

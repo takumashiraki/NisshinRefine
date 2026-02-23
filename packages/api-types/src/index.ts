@@ -15,3 +15,5 @@ export interface CreateUserRequest {
 }
 
 export type CreateUserResponse = User | { error_code: string; errors?: { message: string; field: string }[] }
+
+export * from './generated/backend/status.zod'

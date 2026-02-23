@@ -1,11 +1,11 @@
-import type { User } from '@nisshin/api-types'
+import type { StatusSummaryResponse } from './generated/model'
 import { apiBaseUrl } from '@/shared/lib/env'
 
-export const getStatus = async (userId: string): Promise<User | null> => {
-  const response = await fetch(`${apiBaseUrl}/users/${userId}`)
+export const getStatus = async (statusId: string): Promise<StatusSummaryResponse | null> => {
+  const response = await fetch(`${apiBaseUrl}/status/${statusId}/summary`)
   if (!response.ok) {
     return null
   }
 
-  return (await response.json()) as User
+  return (await response.json()) as StatusSummaryResponse
 }

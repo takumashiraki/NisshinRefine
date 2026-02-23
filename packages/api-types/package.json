@@ -8,8 +8,13 @@
   "scripts": {
     "build": "echo 'api-types: generated artifacts only'",
     "dev": "echo 'api-types: no dev step'",
+    "generate": "orval --config ./orval.config.ts",
+    "generate:status": "(cd ../../apps/backend && bun run openapi:export) && orval --config ./orval.config.ts",
     "lint": "echo 'api-types: lint skipped (generated)'",
     "test": "echo 'api-types: no tests yet'",
     "typecheck": "echo 'api-types: typecheck skipped'"
+  },
+  "devDependencies": {
+    "orval": "^7.8.0"
   }
 }
