@@ -1,0 +1,15 @@
+{
+  "name": "nisshin-refine",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "dev": "bun run --filter '*' dev",
+    "lint": "bun run --filter '*' lint",
+    "test": "bun run --filter '*' test",
+    "typecheck": "bun run --filter '*' typecheck"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@nisshin/api-types",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "echo 'api-types: generated artifacts only'",
+    "dev": "echo 'api-types: no dev step'",
+    "lint": "echo 'api-types: lint skipped (generated)'",
+    "test": "echo 'api-types: no tests yet'",
+    "typecheck": "echo 'api-types: typecheck skipped'"
+  }
+}
