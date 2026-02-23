@@ -8,7 +8,7 @@
   "scripts": {
     "build": "echo 'validation: no build step yet'",
     "dev": "echo 'validation: no dev step'",
-    "lint": "echo 'validation: lint skipped (tooling not installed)'",
+    "lint": "oxlint src",
     "test": "echo 'validation: no tests yet'",
     "typecheck": "echo 'validation: typecheck skipped'"
   },

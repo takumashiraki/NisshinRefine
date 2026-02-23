@@ -1,0 +1,713 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NisshinRefine API",
+    "version": "0.1.0"
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "example": "user_001"
+          },
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "password": {
+            "type": "string",
+            "example": "hashed_password"
+          }
+        },
+        "required": [
+          "userId",
+          "id",
+          "password"
+        ]
+      },
+      "MetricCode": {
+        "type": "string",
+        "enum": [
+          "strength",
+          "routine",
+          "health"
+        ]
+      },
+      "MappingType": {
+        "type": "string",
+        "enum": [
+          "formula_fixed",
+          "manual_1_10"
+        ]
+      },
+      "StatusMetric": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "metricCode": {
+            "$ref": "#/components/schemas/MetricCode"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "Strength"
+          },
+          "mappingType": {
+            "$ref": "#/components/schemas/MappingType"
+          },
+          "unit": {
+            "type": "string",
+            "example": "ratio"
+          },
+          "sortOrder": {
+            "type": "number",
+            "example": 10
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-02-23T09:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "metricCode",
+          "displayName",
+          "mappingType",
+          "sortOrder",
+          "isActive",
+          "updatedAt"
+        ]
+      },
+      "StatusMetricsListResponse": {
+        "type": "object",
+        "properties": {
+          "metrics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatusMetric"
+            }
+          }
+        },
+        "required": [
+          "metrics"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "example": "Invalid Request"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "invalid metricCode"
+                },
+                "field": {
+                  "type": "string",
+                  "example": "items[0].metricCode"
+                }
+              },
+              "required": [
+                "message",
+                "field"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error_code"
+        ]
+      },
+      "StatusSummaryItem": {
+        "type": "object",
+        "properties": {
+          "metricCode": {
+            "$ref": "#/components/schemas/MetricCode"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "Health"
+          },
+          "score": {
+            "type": "integer",
+            "example": 8
+          }
+        },
+        "required": [
+          "metricCode",
+          "displayName",
+          "score"
+        ]
+      },
+      "StatusSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "example": "2026-02-23"
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatusSummaryItem"
+            }
+          }
+        },
+        "required": [
+          "date",
+          "statuses"
+        ]
+      },
+      "CreateStatusLogsResponse": {
+        "type": "object",
+        "properties": {
+          "recordDate": {
+            "type": "string",
+            "example": "2026-02-23"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "metricCode": {
+                  "$ref": "#/components/schemas/MetricCode"
+                },
+                "rawValue": {
+                  "type": "number",
+                  "example": 1.8
+                },
+                "score": {
+                  "type": "integer",
+                  "example": 7
+                }
+              },
+              "required": [
+                "metricCode",
+                "rawValue",
+                "score"
+              ]
+            }
+          }
+        },
+        "required": [
+          "recordDate",
+          "items"
+        ]
+      },
+      "CreateStatusLogsRequest": {
+        "type": "object",
+        "properties": {
+          "recordDate": {
+            "type": "string",
+            "example": "2026-02-23"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "metricCode": {
+                  "$ref": "#/components/schemas/MetricCode"
+                },
+                "rawValue": {
+                  "type": "number",
+                  "example": 1.8
+                },
+                "note": {
+                  "type": "string",
+                  "example": "squat/deadlift/benchの平均"
+                }
+              },
+              "required": [
+                "metricCode",
+                "rawValue"
+              ]
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "recordDate",
+          "items"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/users": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "example": "user_001"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "secret1234"
+                  }
+                },
+                "required": [
+                  "userId",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Create user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string",
+                      "example": "Invalid Request"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "already exist"
+                          },
+                          "field": {
+                            "type": "string",
+                            "example": "userId"
+                          }
+                        },
+                        "required": [
+                          "message",
+                          "field"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "error_code"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string",
+                      "example": "Invalid Request"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "already exist"
+                          },
+                          "field": {
+                            "type": "string",
+                            "example": "userId"
+                          }
+                        },
+                        "required": [
+                          "message",
+                          "field"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "error_code"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "user_001"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string",
+                      "example": "Invalid Request"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "already exist"
+                          },
+                          "field": {
+                            "type": "string",
+                            "example": "userId"
+                          }
+                        },
+                        "required": [
+                          "message",
+                          "field"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "error_code"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "user_001"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "password": {
+                    "type": "string",
+                    "example": "updated_secret"
+                  }
+                },
+                "required": [
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Update user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string",
+                      "example": "Invalid Request"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "already exist"
+                          },
+                          "field": {
+                            "type": "string",
+                            "example": "userId"
+                          }
+                        },
+                        "required": [
+                          "message",
+                          "field"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "error_code"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "user_001"
+            },
+            "required": true,
+            "name": "userId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error_code": {
+                      "type": "string",
+                      "example": "Invalid Request"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "type": "string",
+                            "example": "already exist"
+                          },
+                          "field": {
+                            "type": "string",
+                            "example": "userId"
+                          }
+                        },
+                        "required": [
+                          "message",
+                          "field"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "error_code"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status/{statusId}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "status_001"
+            },
+            "required": true,
+            "name": "statusId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get status metrics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusMetricsListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status/{statusId}/summary": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "example": "status_001"
+            },
+            "required": true,
+            "name": "statusId",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "example": "2026-02-23"
+            },
+            "required": false,
+            "name": "date",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Get status summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusSummaryResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStatusLogsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Create status logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStatusLogsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}

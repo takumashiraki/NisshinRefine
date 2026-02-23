@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { createUserRoute, deleteUserRoute, getUserRoute, updateUserRoute } from './schemas/user'
@@ -6,6 +5,10 @@ import { createUser } from './usecase/user/post'
 import { getUser } from './usecase/user/get'
 import { updateUser } from './usecase/user/update'
 import { deleteUser } from './usecase/user/delete'
+import { getStatusMetricsRoute, getStatusSummaryRoute, postStatusLogsRoute } from './schemas/status'
+import { getStatusMetrics } from './usecase/status/getMetrics'
+import { getStatusSummary } from './usecase/status/getSummary'
+import { postStatusLogs } from './usecase/status/postLogs'
 
 export interface Env {
   Bindings: {
@@ -41,7 +44,7 @@ interface D1Result {
 
 const app = new OpenAPIHono<Env>()
 
-app.doc('/doc', {
+app.doc('/openapi', {
   openapi: '3.0.0',
   info: {
     title: 'NisshinRefine API',
@@ -49,10 +52,13 @@ app.doc('/doc', {
   },
 })
 
-app.get('/ui', swaggerUI({ url: '/doc' }))
+app.get('/openapi/ui', swaggerUI({ url: '/openapi' }))
 app.openapi(createUserRoute, createUser as any)
 app.openapi(getUserRoute, getUser as any)
 app.openapi(updateUserRoute, updateUser as any)
 app.openapi(deleteUserRoute, deleteUser as any)
+app.openapi(getStatusMetricsRoute, getStatusMetrics as any)
+app.openapi(getStatusSummaryRoute, getStatusSummary as any)
+app.openapi(postStatusLogsRoute, postStatusLogs as any)
 
 export default app

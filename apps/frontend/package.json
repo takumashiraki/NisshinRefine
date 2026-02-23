@@ -6,7 +6,7 @@
   "scripts": {
     "build": "echo 'frontend: build command placeholder'",
     "dev": "next dev",
-    "lint": "echo 'frontend: lint skipped (tooling not installed)'",
+    "lint": "oxlint src",
     "test": "echo 'frontend: test placeholder'",
     "typecheck": "echo 'frontend: typecheck placeholder'"
   },

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { createRoute, z } from '@hono/zod-openapi'
 
 export const ErrorSchema = z
