@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { Env } from './../../app'
+import StatusDatabase from './../../infrastructure/status'
 import { errorResponse } from './../response'
 
 export const getStatusSummary = async (
@@ -18,30 +19,33 @@ export const getStatusSummary = async (
     }
   >,
 ): Promise<Response> => {
+  const env = c.env
+  const params = c.req.param()
+  const db = new StatusDatabase()
+
   try {
     const query = c.req.query()
     const date = query.date ?? new Date().toISOString().slice(0, 10)
+    let statuses
+
+    try {
+      ;({ result: statuses } = await db.selectStatusSummary(env.backend, 'status_log', 'status_metric', {
+        statusId: params.statusId,
+        recordDate: date,
+      }))
+    } catch (error) {
+      console.error('selectStatusSummary failed', error)
+      return errorResponse(c, 500, 'Internal Server Error', '', '')
+    }
 
     return c.json(
       {
         date,
-        statuses: [
-          {
-            metricCode: 'strength',
-            displayName: 'Strength',
-            score: 7,
-          },
-          {
-            metricCode: 'routine',
-            displayName: 'Routine',
-            score: 8,
-          },
-          {
-            metricCode: 'health',
-            displayName: 'Health',
-            score: 6,
-          },
-        ],
+        statuses: (statuses ?? []).map((status) => ({
+          metricCode: status.metricCode,
+          displayName: status.displayName,
+          score: Number(status.score),
+        })),
       },
       200,
     )

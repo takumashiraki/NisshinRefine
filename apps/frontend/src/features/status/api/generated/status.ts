@@ -21,18 +21,14 @@ import type {
 import type {
   CreateStatusLogsRequest,
   CreateStatusLogsResponse,
-  DeleteUsersUserId404,
+  CreateUserBody,
   ErrorResponse,
   GetStatusStatusIdSummaryParams,
-  GetUsersUserId404,
-  PostUsers409,
-  PostUsers500,
-  PostUsersBody,
-  PutUsersUserId404,
-  PutUsersUserIdBody,
   StatusMetricsListResponse,
   StatusSummaryResponse,
-  User
+  UpdateUserBody,
+  User,
+  UserErrorResponse
 } from './model';
 
 
@@ -49,12 +45,12 @@ export type postUsersResponse200 = {
 }
 
 export type postUsersResponse409 = {
-  data: PostUsers409
+  data: UserErrorResponse
   status: 409
 }
 
 export type postUsersResponse500 = {
-  data: PostUsers500
+  data: UserErrorResponse
   status: 500
 }
     
@@ -75,7 +71,7 @@ export const getPostUsersUrl = () => {
   return `/users`
 }
 
-export const postUsers = async (postUsersBody: PostUsersBody, options?: RequestInit): Promise<postUsersResponse> => {
+export const postUsers = async (createUserBody: CreateUserBody, options?: RequestInit): Promise<postUsersResponse> => {
   
   const res = await fetch(getPostUsersUrl(),
   {      
@@ -83,7 +79,7 @@ export const postUsers = async (postUsersBody: PostUsersBody, options?: RequestI
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postUsersBody,)
+      createUserBody,)
   }
 )
 
@@ -96,9 +92,9 @@ export const postUsers = async (postUsersBody: PostUsersBody, options?: RequestI
 
 
 
-export const getPostUsersMutationOptions = <TError = PostUsers409 | PostUsers500,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: PostUsersBody}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: PostUsersBody}, TContext> => {
+export const getPostUsersMutationOptions = <TError = UserErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: CreateUserBody}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: CreateUserBody}, TContext> => {
 
 const mutationKey = ['postUsers'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -110,7 +106,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsers>>, {data: PostUsersBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postUsers>>, {data: CreateUserBody}> = (props) => {
           const {data} = props ?? {};
 
           return  postUsers(data,fetchOptions)
@@ -122,15 +118,15 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostUsersMutationResult = NonNullable<Awaited<ReturnType<typeof postUsers>>>
-    export type PostUsersMutationBody = PostUsersBody
-    export type PostUsersMutationError = PostUsers409 | PostUsers500
+    export type PostUsersMutationBody = CreateUserBody
+    export type PostUsersMutationError = UserErrorResponse
 
-    export const usePostUsers = <TError = PostUsers409 | PostUsers500,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: PostUsersBody}, TContext>, fetch?: RequestInit}
+    export const usePostUsers = <TError = UserErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postUsers>>, TError,{data: CreateUserBody}, TContext>, fetch?: RequestInit}
  ): UseMutationResult<
         Awaited<ReturnType<typeof postUsers>>,
         TError,
-        {data: PostUsersBody},
+        {data: CreateUserBody},
         TContext
       > => {
 
@@ -145,7 +141,7 @@ export type getUsersUserIdResponse200 = {
 }
 
 export type getUsersUserIdResponse404 = {
-  data: GetUsersUserId404
+  data: UserErrorResponse
   status: 404
 }
     
@@ -194,7 +190,7 @@ export const getGetUsersUserIdQueryKey = (userId?: string,) => {
     }
 
     
-export const getGetUsersUserIdQueryOptions = <TData = Awaited<ReturnType<typeof getUsersUserId>>, TError = GetUsersUserId404>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>, fetch?: RequestInit}
+export const getGetUsersUserIdQueryOptions = <TData = Awaited<ReturnType<typeof getUsersUserId>>, TError = UserErrorResponse>(userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -213,11 +209,11 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetUsersUserIdQueryResult = NonNullable<Awaited<ReturnType<typeof getUsersUserId>>>
-export type GetUsersUserIdQueryError = GetUsersUserId404
+export type GetUsersUserIdQueryError = UserErrorResponse
 
 
 
-export function useGetUsersUserId<TData = Awaited<ReturnType<typeof getUsersUserId>>, TError = GetUsersUserId404>(
+export function useGetUsersUserId<TData = Awaited<ReturnType<typeof getUsersUserId>>, TError = UserErrorResponse>(
  userId: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getUsersUserId>>, TError, TData>, fetch?: RequestInit}
   
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -241,7 +237,7 @@ export type putUsersUserIdResponse200 = {
 }
 
 export type putUsersUserIdResponse404 = {
-  data: PutUsersUserId404
+  data: UserErrorResponse
   status: 404
 }
     
@@ -263,7 +259,7 @@ export const getPutUsersUserIdUrl = (userId: string,) => {
 }
 
 export const putUsersUserId = async (userId: string,
-    putUsersUserIdBody: PutUsersUserIdBody, options?: RequestInit): Promise<putUsersUserIdResponse> => {
+    updateUserBody: UpdateUserBody, options?: RequestInit): Promise<putUsersUserIdResponse> => {
   
   const res = await fetch(getPutUsersUserIdUrl(userId),
   {      
@@ -271,7 +267,7 @@ export const putUsersUserId = async (userId: string,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      putUsersUserIdBody,)
+      updateUserBody,)
   }
 )
 
@@ -284,9 +280,9 @@ export const putUsersUserId = async (userId: string,
 
 
 
-export const getPutUsersUserIdMutationOptions = <TError = PutUsersUserId404,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: PutUsersUserIdBody}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: PutUsersUserIdBody}, TContext> => {
+export const getPutUsersUserIdMutationOptions = <TError = UserErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: UpdateUserBody}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: UpdateUserBody}, TContext> => {
 
 const mutationKey = ['putUsersUserId'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -298,7 +294,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putUsersUserId>>, {userId: string;data: PutUsersUserIdBody}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putUsersUserId>>, {userId: string;data: UpdateUserBody}> = (props) => {
           const {userId,data} = props ?? {};
 
           return  putUsersUserId(userId,data,fetchOptions)
@@ -310,15 +306,15 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PutUsersUserIdMutationResult = NonNullable<Awaited<ReturnType<typeof putUsersUserId>>>
-    export type PutUsersUserIdMutationBody = PutUsersUserIdBody
-    export type PutUsersUserIdMutationError = PutUsersUserId404
+    export type PutUsersUserIdMutationBody = UpdateUserBody
+    export type PutUsersUserIdMutationError = UserErrorResponse
 
-    export const usePutUsersUserId = <TError = PutUsersUserId404,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: PutUsersUserIdBody}, TContext>, fetch?: RequestInit}
+    export const usePutUsersUserId = <TError = UserErrorResponse,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putUsersUserId>>, TError,{userId: string;data: UpdateUserBody}, TContext>, fetch?: RequestInit}
  ): UseMutationResult<
         Awaited<ReturnType<typeof putUsersUserId>>,
         TError,
-        {userId: string;data: PutUsersUserIdBody},
+        {userId: string;data: UpdateUserBody},
         TContext
       > => {
 
@@ -333,7 +329,7 @@ export type deleteUsersUserIdResponse200 = {
 }
 
 export type deleteUsersUserIdResponse404 = {
-  data: DeleteUsersUserId404
+  data: UserErrorResponse
   status: 404
 }
     
@@ -374,7 +370,7 @@ export const deleteUsersUserId = async (userId: string, options?: RequestInit): 
 
 
 
-export const getDeleteUsersUserIdMutationOptions = <TError = DeleteUsersUserId404,
+export const getDeleteUsersUserIdMutationOptions = <TError = UserErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUsersUserId>>, TError,{userId: string}, TContext>, fetch?: RequestInit}
 ): UseMutationOptions<Awaited<ReturnType<typeof deleteUsersUserId>>, TError,{userId: string}, TContext> => {
 
@@ -401,9 +397,9 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
     export type DeleteUsersUserIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUsersUserId>>>
     
-    export type DeleteUsersUserIdMutationError = DeleteUsersUserId404
+    export type DeleteUsersUserIdMutationError = UserErrorResponse
 
-    export const useDeleteUsersUserId = <TError = DeleteUsersUserId404,
+    export const useDeleteUsersUserId = <TError = UserErrorResponse,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUsersUserId>>, TError,{userId: string}, TContext>, fetch?: RequestInit}
  ): UseMutationResult<
         Awaited<ReturnType<typeof deleteUsersUserId>>,

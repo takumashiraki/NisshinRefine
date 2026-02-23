@@ -7,7 +7,7 @@
 import type { CreateStatusLogsRequestItemsItem } from './createStatusLogsRequestItemsItem';
 
 export interface CreateStatusLogsRequest {
+  statusId: string;
   recordDate: string;
-  /** @minItems 1 */
   items: CreateStatusLogsRequestItemsItem[];
 }

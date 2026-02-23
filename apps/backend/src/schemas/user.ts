@@ -1,44 +1,11 @@
-import { createRoute, z } from '@hono/zod-openapi'
-
-export const ErrorSchema = z
-  .object({
-    error: z.string().openapi({ example: 'Invalid Request' }),
-    message: z.string().openapi({ example: 'already exist' }),
-  })
-  .openapi('Error')
-
-const UserSchema = z
-  .object({
-    userId: z.string().openapi({ example: 'user_001' }),
-    id: z.number().openapi({ example: 1 }),
-    password: z.string().openapi({ example: 'hashed_password' }),
-  })
-  .openapi('User')
-
-const userParamsSchema = z.object({
-  userId: z.string().openapi({ example: 'user_001' }),
-})
-
-const createUserBodySchema = z.object({
-  userId: z.string().openapi({ example: 'user_001' }),
-  password: z.string().openapi({ example: 'secret1234' }),
-})
-
-const updateUserBodySchema = z.object({
-  password: z.string().openapi({ example: 'updated_secret' }),
-})
-
-const errorResponseSchema = z.object({
-  error_code: z.string().openapi({ example: 'Invalid Request' }),
-  errors: z
-    .array(
-      z.object({
-        message: z.string().openapi({ example: 'already exist' }),
-        field: z.string().openapi({ example: 'userId' }),
-      }),
-    )
-    .optional(),
-})
+import { createRoute } from '@hono/zod-openapi'
+import {
+  createUserBodyOpenApiSchema,
+  updateUserBodyOpenApiSchema,
+  userErrorResponseOpenApiSchema,
+  userOpenApiSchema,
+  userParamsOpenApiSchema,
+} from '@nisshin/validation'
 
 export const createUserRoute = createRoute({
   method: 'post',
@@ -47,7 +14,7 @@ export const createUserRoute = createRoute({
     body: {
       content: {
         'application/json': {
-          schema: createUserBodySchema,
+          schema: createUserBodyOpenApiSchema,
         },
       },
     },
@@ -57,7 +24,7 @@ export const createUserRoute = createRoute({
       description: 'Create user',
       content: {
         'application/json': {
-          schema: UserSchema,
+          schema: userOpenApiSchema,
         },
       },
     },
@@ -65,7 +32,7 @@ export const createUserRoute = createRoute({
       description: 'Conflict',
       content: {
         'application/json': {
-          schema: errorResponseSchema,
+          schema: userErrorResponseOpenApiSchema,
         },
       },
     },
@@ -73,7 +40,7 @@ export const createUserRoute = createRoute({
       description: 'Internal server error',
       content: {
         'application/json': {
-          schema: errorResponseSchema,
+          schema: userErrorResponseOpenApiSchema,
         },
       },
     },
@@ -84,14 +51,14 @@ export const getUserRoute = createRoute({
   method: 'get',
   path: '/users/{userId}',
   request: {
-    params: userParamsSchema,
+    params: userParamsOpenApiSchema,
   },
   responses: {
     200: {
       description: 'Get user',
       content: {
         'application/json': {
-          schema: UserSchema,
+          schema: userOpenApiSchema,
         },
       },
     },
@@ -99,7 +66,7 @@ export const getUserRoute = createRoute({
       description: 'Not found',
       content: {
         'application/json': {
-          schema: errorResponseSchema,
+          schema: userErrorResponseOpenApiSchema,
         },
       },
     },
@@ -110,11 +77,11 @@ export const updateUserRoute = createRoute({
   method: 'put',
   path: '/users/{userId}',
   request: {
-    params: userParamsSchema,
+    params: userParamsOpenApiSchema,
     body: {
       content: {
         'application/json': {
-          schema: updateUserBodySchema,
+          schema: updateUserBodyOpenApiSchema,
         },
       },
     },
@@ -124,7 +91,7 @@ export const updateUserRoute = createRoute({
       description: 'Update user',
       content: {
         'application/json': {
-          schema: UserSchema,
+          schema: userOpenApiSchema,
         },
       },
     },
@@ -132,7 +99,7 @@ export const updateUserRoute = createRoute({
       description: 'Not found',
       content: {
         'application/json': {
-          schema: errorResponseSchema,
+          schema: userErrorResponseOpenApiSchema,
         },
       },
     },
@@ -143,14 +110,14 @@ export const deleteUserRoute = createRoute({
   method: 'delete',
   path: '/users/{userId}',
   request: {
-    params: userParamsSchema,
+    params: userParamsOpenApiSchema,
   },
   responses: {
     200: {
       description: 'Delete user',
       content: {
         'application/json': {
-          schema: UserSchema,
+          schema: userOpenApiSchema,
         },
       },
     },
@@ -158,7 +125,7 @@ export const deleteUserRoute = createRoute({
       description: 'Not found',
       content: {
         'application/json': {
-          schema: errorResponseSchema,
+          schema: userErrorResponseOpenApiSchema,
         },
       },
     },

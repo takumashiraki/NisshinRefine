@@ -1,5 +1,6 @@
 import type { Context } from 'hono'
 import type { Env } from './../../app'
+import StatusDatabase from './../../infrastructure/status'
 import { errorResponse } from './../response'
 
 export const getStatusMetrics = async (
@@ -15,46 +16,31 @@ export const getStatusMetrics = async (
     }
   >,
 ): Promise<Response> => {
+  const env = c.env
+  const params = c.req.param()
+  const db = new StatusDatabase()
+
+  let metrics
   try {
-    return c.json(
-      {
-        metrics: [
-          {
-            id: 1,
-            metricCode: 'strength',
-            displayName: 'Strength',
-            mappingType: 'formula_fixed',
-            unit: 'ratio',
-            sortOrder: 10,
-            isActive: true,
-            updatedAt: new Date().toISOString(),
-          },
-          {
-            id: 2,
-            metricCode: 'routine',
-            displayName: 'Routine',
-            mappingType: 'formula_fixed',
-            unit: '%',
-            sortOrder: 20,
-            isActive: true,
-            updatedAt: new Date().toISOString(),
-          },
-          {
-            id: 3,
-            metricCode: 'health',
-            displayName: 'Health',
-            mappingType: 'formula_fixed',
-            unit: 'hour',
-            sortOrder: 30,
-            isActive: true,
-            updatedAt: new Date().toISOString(),
-          },
-        ],
-      },
-      200,
-    )
+    ;({ result: metrics } = await db.selectStatusMetrics(env.backend, 'status_metric', { statusId: params.statusId }))
   } catch (error) {
     console.error('getStatusMetrics failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
   }
+
+  return c.json(
+    {
+      metrics: (metrics ?? []).map((metric) => ({
+        id: Number(metric.id),
+        metricCode: metric.metricCode,
+        displayName: metric.displayName,
+        mappingType: metric.mappingType,
+        unit: metric.unit ?? undefined,
+        sortOrder: Number(metric.sortOrder),
+        isActive: metric.isActive === true || Number(metric.isActive) === 1,
+        updatedAt: metric.updatedAt,
+      })),
+    },
+    200,
+  )
 }

@@ -5,8 +5,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface User {
-  id: number;
+export interface CreateUserBody {
   userId: string;
   password: string;
 }

@@ -5,8 +5,6 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface User {
-  id: number;
-  userId: string;
+export interface UpdateUserBody {
   password: string;
 }

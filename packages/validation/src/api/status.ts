@@ -1,20 +1,12 @@
 import { z } from 'zod'
-import { mappingTypeSchema, metricCodeSchema } from '../domain/status'
+import { metricCodeSchema } from '../drizzle/zod'
+import { createStatusLogsDomainSchema, statusMetricDomainSchema } from '../domain/status'
 
-export const statusMetricApiSchema = z.object({
-  id: z.number().int(),
-  metricCode: metricCodeSchema,
-  displayName: z.string(),
-  mappingType: mappingTypeSchema,
-  unit: z.string().optional(),
-  sortOrder: z.number().int(),
-  isActive: z.boolean(),
-  updatedAt: z.string(),
-})
+export const statusMetricApiSchema = statusMetricDomainSchema
 
 export const statusSummaryItemApiSchema = z.object({
   metricCode: metricCodeSchema,
-  displayName: z.string(),
+  displayName: statusMetricDomainSchema.shape.displayName,
   score: z.number().int().min(1).max(10),
 })
 
@@ -23,19 +15,10 @@ export const statusSummaryApiSchema = z.object({
   statuses: z.array(statusSummaryItemApiSchema),
 })
 
-export const createStatusLogsRequestApiSchema = z.object({
-  recordDate: z.string(),
-  items: z.array(
-    z.object({
-      metricCode: metricCodeSchema,
-      rawValue: z.number(),
-      note: z.string().optional(),
-    }),
-  ),
-})
+export const createStatusLogsRequestApiSchema = createStatusLogsDomainSchema
 
 export const createStatusLogsResponseApiSchema = z.object({
-  recordDate: z.string(),
+  recordDate: createStatusLogsDomainSchema.shape.recordDate,
   items: z.array(
     z.object({
       metricCode: metricCodeSchema,

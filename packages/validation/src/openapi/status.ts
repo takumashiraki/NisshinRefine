@@ -1,11 +1,19 @@
 import { z } from '@hono/zod-openapi'
+import {
+  createStatusLogsRequestApiSchema,
+  createStatusLogsResponseApiSchema,
+  statusMetricApiSchema,
+  statusSummaryApiSchema,
+} from '../api/status'
+import { metricCodeSchema, mappingTypeSchema } from '../drizzle/zod'
 
-export const metricCodeOpenApiSchema = z.enum(['strength', 'routine', 'health']).openapi('MetricCode')
+export const metricCodeOpenApiSchema = z.enum(metricCodeSchema.options).openapi('MetricCode')
 
-export const mappingTypeOpenApiSchema = z.enum(['formula_fixed', 'manual_1_10']).openapi('MappingType')
+export const mappingTypeOpenApiSchema = z.enum(mappingTypeSchema.options).openapi('MappingType')
 
 export const statusMetricOpenApiSchema = z
-  .object({
+  .object(statusMetricApiSchema.shape)
+  .extend({
     id: z.number().openapi({ example: 1 }),
     metricCode: metricCodeOpenApiSchema,
     displayName: z.string().openapi({ example: 'Strength' }),
@@ -32,29 +40,30 @@ export const statusSummaryItemOpenApiSchema = z
   .openapi('StatusSummaryItem')
 
 export const statusSummaryResponseOpenApiSchema = z
-  .object({
+  .object(statusSummaryApiSchema.extend({ statuses: z.array(statusSummaryItemOpenApiSchema) }).shape)
+  .extend({
     date: z.string().openapi({ example: '2026-02-23' }),
-    statuses: z.array(statusSummaryItemOpenApiSchema),
   })
   .openapi('StatusSummaryResponse')
 
 export const createStatusLogsRequestOpenApiSchema = z
-  .object({
+  .object(createStatusLogsRequestApiSchema.shape)
+  .extend({
+    statusId: z.string().uuid().openapi({ example: '22222222-2222-4222-8222-222222222222' }),
     recordDate: z.string().openapi({ example: '2026-02-23' }),
-    items: z
-      .array(
-        z.object({
-          metricCode: metricCodeOpenApiSchema,
-          rawValue: z.number().openapi({ example: 1.8 }),
-          note: z.string().optional().openapi({ example: 'squat/deadlift/benchの平均' }),
-        }),
-      )
-      .min(1),
+    items: z.array(
+      z.object({
+        metricCode: metricCodeOpenApiSchema,
+        rawValue: z.number().openapi({ example: 1.8 }),
+        note: z.string().optional().openapi({ example: 'squat/deadlift/benchの平均' }),
+      }),
+    ),
   })
   .openapi('CreateStatusLogsRequest')
 
 export const createStatusLogsResponseOpenApiSchema = z
-  .object({
+  .object(createStatusLogsResponseApiSchema.shape)
+  .extend({
     recordDate: z.string().openapi({ example: '2026-02-23' }),
     items: z.array(
       z.object({
@@ -68,7 +77,7 @@ export const createStatusLogsResponseOpenApiSchema = z
 
 export const statusParamsOpenApiSchema = z
   .object({
-    statusId: z.string().openapi({ example: 'status_001' }),
+    statusId: z.string().uuid().openapi({ example: '22222222-2222-4222-8222-222222222222' }),
   })
   .openapi('StatusParams')
 

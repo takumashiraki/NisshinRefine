@@ -1,3 +1,7 @@
+import { and, eq } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
+import { userTable } from '@nisshin/validation'
+
 interface D1Database {
   prepare(query: string): D1PreparedStatement
   batch(statements: D1PreparedStatement[]): Promise<D1Result[]>
@@ -22,13 +26,20 @@ interface UserRow {
 class UserDatabase {
   async createUser(
     db: D1Database,
-    table: string,
+    _table: string,
     payload: { userId: string; password: string },
   ): Promise<{ result: UserRow | null }> {
     try {
-      const query = `INSERT INTO ${table} (userId, password) VALUES (?, ?) RETURNING id, userId, password`
-      const results = await db.batch([db.prepare(query).bind(payload.userId, payload.password)])
-      const row = results[0]?.results?.[0] as UserRow | undefined
+      const database = drizzle(db as any)
+      const rows = await database
+        .insert(userTable)
+        .values({ userId: payload.userId, password: payload.password })
+        .returning({
+          id: userTable.id,
+          userId: userTable.userId,
+          password: userTable.password,
+        })
+      const row = rows[0] as UserRow | undefined
       return { result: row ?? null }
     } catch (error) {
       console.error('createUser error', error)
@@ -38,13 +49,21 @@ class UserDatabase {
 
   async selectUser(
     db: D1Database,
-    table: string,
+    _table: string,
     payload: { userId: string },
   ): Promise<{ result: UserRow | null }> {
     try {
-      const query = `SELECT id, userId, password FROM ${table} WHERE userId = ? LIMIT 1`
-      const results = await db.batch([db.prepare(query).bind(payload.userId)])
-      const row = results[0]?.results?.[0] as UserRow | undefined
+      const database = drizzle(db as any)
+      const rows = await database
+        .select({
+          id: userTable.id,
+          userId: userTable.userId,
+          password: userTable.password,
+        })
+        .from(userTable)
+        .where(eq(userTable.userId, payload.userId))
+        .limit(1)
+      const row = rows[0] as UserRow | undefined
       return { result: row ?? null }
     } catch (error) {
       console.error('selectUser error', error)
@@ -54,13 +73,21 @@ class UserDatabase {
 
   async updateUser(
     db: D1Database,
-    table: string,
+    _table: string,
     payload: { userId: string; password: string },
   ): Promise<{ result: UserRow | null }> {
     try {
-      const query = `UPDATE ${table} SET password = ? WHERE userId = ? RETURNING id, userId, password`
-      const results = await db.batch([db.prepare(query).bind(payload.password, payload.userId)])
-      const row = results[0]?.results?.[0] as UserRow | undefined
+      const database = drizzle(db as any)
+      const rows = await database
+        .update(userTable)
+        .set({ password: payload.password })
+        .where(eq(userTable.userId, payload.userId))
+        .returning({
+          id: userTable.id,
+          userId: userTable.userId,
+          password: userTable.password,
+        })
+      const row = rows[0] as UserRow | undefined
       return { result: row ?? null }
     } catch (error) {
       console.error('updateUser error', error)
@@ -68,11 +95,18 @@ class UserDatabase {
     }
   }
 
-  async deleteUser(db: D1Database, table: string, payload: { userId: string }): Promise<{ result: UserRow | null }> {
+  async deleteUser(db: D1Database, _table: string, payload: { userId: string }): Promise<{ result: UserRow | null }> {
     try {
-      const query = `DELETE FROM ${table} WHERE userId = ? RETURNING id, userId, password`
-      const results = await db.batch([db.prepare(query).bind(payload.userId)])
-      const row = results[0]?.results?.[0] as UserRow | undefined
+      const database = drizzle(db as any)
+      const rows = await database
+        .delete(userTable)
+        .where(and(eq(userTable.userId, payload.userId)))
+        .returning({
+          id: userTable.id,
+          userId: userTable.userId,
+          password: userTable.password,
+        })
+      const row = rows[0] as UserRow | undefined
       return { result: row ?? null }
     } catch (error) {
       console.error('deleteUser error', error)

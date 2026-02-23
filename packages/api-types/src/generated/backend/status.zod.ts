@@ -7,30 +7,30 @@
 import * as zod from 'zod';
 
 export const postUsersBody = zod.object({
-  "userId": zod.string(),
+  "userId": zod.string().uuid(),
   "password": zod.string()
 })
 
 export const postUsersResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
+  "userId": zod.string().uuid(),
   "password": zod.string()
 })
 
 
 export const getUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().uuid()
 })
 
 export const getUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
+  "userId": zod.string().uuid(),
   "password": zod.string()
 })
 
 
 export const putUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().uuid()
 })
 
 export const putUsersUserIdBody = zod.object({
@@ -38,25 +38,25 @@ export const putUsersUserIdBody = zod.object({
 })
 
 export const putUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
+  "userId": zod.string().uuid(),
   "password": zod.string()
 })
 
 
 export const deleteUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().uuid()
 })
 
 export const deleteUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
+  "userId": zod.string().uuid(),
   "password": zod.string()
 })
 
 
 export const getStatusStatusIdParams = zod.object({
-  "statusId": zod.string()
+  "statusId": zod.string().uuid()
 })
 
 export const getStatusStatusIdResponse = zod.object({
@@ -74,7 +74,7 @@ export const getStatusStatusIdResponse = zod.object({
 
 
 export const getStatusStatusIdSummaryParams = zod.object({
-  "statusId": zod.string()
+  "statusId": zod.string().uuid()
 })
 
 export const getStatusStatusIdSummaryQueryParams = zod.object({
@@ -91,14 +91,12 @@ export const getStatusStatusIdSummaryResponse = zod.object({
 })
 
 
-
-
-
 export const postStatusBody = zod.object({
+  "statusId": zod.string().uuid(),
   "recordDate": zod.string(),
   "items": zod.array(zod.object({
   "metricCode": zod.enum(['strength', 'routine', 'health']),
   "rawValue": zod.number(),
   "note": zod.string().optional()
-})).min(1)
+}))
 })

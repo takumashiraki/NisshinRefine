@@ -1,40 +1,49 @@
 import { z } from 'zod'
+import {
+  mappingTypeSchema,
+  metricCodeSchema,
+  statusLogInsertSchema,
+  statusMetricSelectSchema,
+} from '../drizzle/zod'
 
-export const metricCodeSchema = z.enum(['strength', 'routine', 'health'])
+export { mappingTypeSchema, metricCodeSchema } from '../drizzle/zod'
 
-export const mappingTypeSchema = z.enum(['formula_fixed', 'manual_1_10'])
+export const statusMetricDomainSchema = statusMetricSelectSchema
+  .pick({
+    id: true,
+    metricCode: true,
+    displayName: true,
+    mappingType: true,
+    unit: true,
+    sortOrder: true,
+    isActive: true,
+    updatedAt: true,
+  })
+  .extend({
+    isActive: z.boolean(),
+  })
 
-export const statusMetricDomainSchema = z.object({
-  id: z.number().int().positive(),
-  userId: z.string().min(1),
+export const statusLogItemInputDomainSchema = statusLogInsertSchema.pick({
+  rawValue: true,
+  note: true,
+}).extend({
   metricCode: metricCodeSchema,
-  displayName: z.string().min(1),
-  mappingType: mappingTypeSchema,
-  unit: z.string().min(1).optional(),
-  sortOrder: z.number().int().min(0),
-  isActive: z.boolean(),
-  updatedAt: z.string().datetime(),
-})
-
-export const statusLogItemInputDomainSchema = z.object({
-  metricCode: metricCodeSchema,
-  rawValue: z.number().finite(),
-  note: z.string().max(500).optional(),
 })
 
 export const createStatusLogsDomainSchema = z.object({
-  recordDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  statusId: statusLogInsertSchema.shape.statusId,
+  recordDate: statusLogInsertSchema.shape.recordDate.regex(/^\d{4}-\d{2}-\d{2}$/),
   items: z.array(statusLogItemInputDomainSchema).min(1),
 })
 
 export const statusSummaryItemDomainSchema = z.object({
   metricCode: metricCodeSchema,
-  displayName: z.string().min(1),
-  score: z.number().int().min(1).max(10),
+  displayName: statusMetricSelectSchema.shape.displayName,
+  score: statusLogInsertSchema.shape.score.int().min(1).max(10),
 })
 
 export const statusSummaryDomainSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date: statusLogInsertSchema.shape.recordDate.regex(/^\d{4}-\d{2}-\d{2}$/),
   statuses: z.array(statusSummaryItemDomainSchema),
 })
 
