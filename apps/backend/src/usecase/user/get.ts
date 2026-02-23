@@ -32,5 +32,5 @@ export const getUser = async (
     return errorResponse(c, 404, 'Resource Not Found', '', '')
   }
 
-  return c.json({ userId: user.userId, id: user.id, password: user.password }, 200)
+  return c.json({ name: user.name, userId: user.userId, password: user.password }, 200)
 }

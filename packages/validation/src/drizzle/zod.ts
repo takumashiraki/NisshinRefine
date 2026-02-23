@@ -7,10 +7,14 @@ export const mappingTypeSchema = z.enum(['formula_fixed', 'manual_1_10'])
 
 export const userSelectSchema = createSelectSchema(userTable, {
   userId: z.string().uuid(),
+  email: z.string().email().nullable(),
+  password: z.string().nullable(),
 })
 
 export const userInsertSchema = createInsertSchema(userTable, {
   userId: z.string().uuid(),
+  email: z.string().email().nullable(),
+  password: z.string().nullable(),
 })
 
 export const statusMetricSelectSchema = createSelectSchema(statusMetricTable, {

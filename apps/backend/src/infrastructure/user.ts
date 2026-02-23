@@ -12,7 +12,7 @@ interface D1PreparedStatement {
 }
 
 interface D1Result {
-  results?: Record<string, string | number | Date>[]
+  results?: Record<string, string | number | Date | null>[]
   success: boolean
   error?: string
 }
@@ -20,23 +20,32 @@ interface D1Result {
 interface UserRow {
   id: number
   userId: string
-  password: string
+  name: string
+  email: string | null
+  password: string | null
 }
 
 class UserDatabase {
   async createUser(
     db: D1Database,
     _table: string,
-    payload: { userId: string; password: string },
+    payload: { userId: string; name: string; email: string | null; password: string | null },
   ): Promise<{ result: UserRow | null }> {
     try {
       const database = drizzle(db as any)
       const rows = await database
         .insert(userTable)
-        .values({ userId: payload.userId, password: payload.password })
+        .values({
+          userId: payload.userId,
+          name: payload.name,
+          email: payload.email,
+          password: payload.password,
+        })
         .returning({
           id: userTable.id,
           userId: userTable.userId,
+          name: userTable.name,
+          email: userTable.email,
           password: userTable.password,
         })
       const row = rows[0] as UserRow | undefined
@@ -58,6 +67,8 @@ class UserDatabase {
         .select({
           id: userTable.id,
           userId: userTable.userId,
+          name: userTable.name,
+          email: userTable.email,
           password: userTable.password,
         })
         .from(userTable)
@@ -74,7 +85,7 @@ class UserDatabase {
   async updateUser(
     db: D1Database,
     _table: string,
-    payload: { userId: string; password: string },
+    payload: { userId: string; password: string | null },
   ): Promise<{ result: UserRow | null }> {
     try {
       const database = drizzle(db as any)
@@ -85,6 +96,8 @@ class UserDatabase {
         .returning({
           id: userTable.id,
           userId: userTable.userId,
+          name: userTable.name,
+          email: userTable.email,
           password: userTable.password,
         })
       const row = rows[0] as UserRow | undefined
@@ -104,6 +117,8 @@ class UserDatabase {
         .returning({
           id: userTable.id,
           userId: userTable.userId,
+          name: userTable.name,
+          email: userTable.email,
           password: userTable.password,
         })
       const row = rows[0] as UserRow | undefined

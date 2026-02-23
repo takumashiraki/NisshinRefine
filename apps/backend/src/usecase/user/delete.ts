@@ -32,5 +32,5 @@ export const deleteUser = async (
     return errorResponse(c, 404, 'Resource Not Found', '', '')
   }
 
-  return c.json({ userId: deleted.userId, id: deleted.id, password: deleted.password }, 200)
+  return c.json({ name: deleted.name, userId: deleted.userId, password: deleted.password }, 200)
 }

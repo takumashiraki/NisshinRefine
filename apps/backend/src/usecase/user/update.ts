@@ -3,6 +3,14 @@ import UserDatabase from './../../infrastructure/user'
 import type { Env } from './../../app'
 import { errorResponse } from './../response'
 
+const hashPassword = async (password: string): Promise<string> => {
+  const input = new TextEncoder().encode(password)
+  const digest = await crypto.subtle.digest('SHA-256', input)
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 export const updateUser = async (
   c: Context<
     Env,
@@ -13,7 +21,7 @@ export const updateUser = async (
           userId: string
         }
         json: {
-          password: string
+          password: string | null
         }
       }
     }
@@ -26,7 +34,8 @@ export const updateUser = async (
 
   let updated
   try {
-    ;({ result: updated } = await db.updateUser(env.backend, 'user', { userId: params.userId, password: payload.password }))
+    const hashedPassword = payload.password ? await hashPassword(payload.password) : null
+    ;({ result: updated } = await db.updateUser(env.backend, 'user', { userId: params.userId, password: hashedPassword }))
   } catch (error) {
     console.error('updateUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
@@ -36,5 +45,5 @@ export const updateUser = async (
     return errorResponse(c, 404, 'Resource Not Found', '', '')
   }
 
-  return c.json({ userId: updated.userId, id: updated.id, password: updated.password }, 200)
+  return c.json({ name: updated.name, userId: updated.userId, password: updated.password }, 200)
 }

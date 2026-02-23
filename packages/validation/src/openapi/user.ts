@@ -1,12 +1,11 @@
 import { z } from '@hono/zod-openapi'
-import { userInsertSchema, userSelectSchema } from '../drizzle/zod'
+import { userInsertSchema } from '../drizzle/zod'
 
 export const userOpenApiSchema = z
-  .object(userSelectSchema.shape)
-  .extend({
+  .object({
+    name: z.string().openapi({ example: '山田太郎' }),
     userId: z.string().uuid().openapi({ example: '11111111-1111-4111-8111-111111111111' }),
-    id: z.number().openapi({ example: 1 }),
-    password: z.string().openapi({ example: 'hashed_password' }),
+    password: z.string().nullable().openapi({ example: 'hashed_password' }),
   })
   .openapi('User')
 
@@ -17,16 +16,17 @@ export const userParamsOpenApiSchema = z
   .openapi('UserParams')
 
 export const createUserBodyOpenApiSchema = z
-  .object(userInsertSchema.pick({ userId: true, password: true }).shape)
+  .object(userInsertSchema.pick({ name: true, email: true, password: true }).shape)
   .extend({
-    userId: z.string().uuid().openapi({ example: '11111111-1111-4111-8111-111111111111' }),
-    password: z.string().openapi({ example: 'secret1234' }),
+    name: z.string().openapi({ example: '山田太郎' }),
+    email: z.string().email().nullable().optional().openapi({ example: 'taro@example.com' }),
+    password: z.string().nullable().optional().openapi({ example: 'secret1234' }),
   })
   .openapi('CreateUserBody')
 
 export const updateUserBodyOpenApiSchema = z
   .object({
-    password: z.string().openapi({ example: 'updated_secret' }),
+    password: z.string().nullable().openapi({ example: 'updated_secret' }),
   })
   .openapi('UpdateUserBody')
 

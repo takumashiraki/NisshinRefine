@@ -3,6 +3,14 @@ import UserDatabase from './../../infrastructure/user'
 import type { Env } from './../../app'
 import { errorResponse } from './../response'
 
+const hashPassword = async (password: string): Promise<string> => {
+  const input = new TextEncoder().encode(password)
+  const digest = await crypto.subtle.digest('SHA-256', input)
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
 export const createUser = async (
   c: Context<
     Env,
@@ -10,8 +18,9 @@ export const createUser = async (
     {
       in: {
         json: {
-          userId: string
-          password: string
+          name: string
+          email?: string | null
+          password?: string | null
         }
       }
     }
@@ -21,21 +30,29 @@ export const createUser = async (
   const payload = await c.req.json()
   const db = new UserDatabase()
 
-  let existing
+  let userId = crypto.randomUUID()
   try {
-    ;({ result: existing } = await db.selectUser(env.backend, 'user', { userId: payload.userId }))
+    for (let i = 0; i < 5; i++) {
+      const { result } = await db.selectUser(env.backend, 'user', { userId })
+      if (!result) {
+        break
+      }
+      userId = crypto.randomUUID()
+    }
   } catch (error) {
     console.error('selectUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
   }
 
-  if (existing) {
-    return errorResponse(c, 409, 'Invalid Request', 'userId', 'already exist')
-  }
-
   let created
   try {
-    ;({ result: created } = await db.createUser(env.backend, 'user', payload))
+    const hashedPassword = payload.password ? await hashPassword(payload.password) : null
+    ;({ result: created } = await db.createUser(env.backend, 'user', {
+      userId,
+      name: payload.name,
+      email: payload.email ?? null,
+      password: hashedPassword,
+    }))
   } catch (error) {
     console.error('createUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
@@ -45,5 +62,5 @@ export const createUser = async (
     return errorResponse(c, 500, 'Internal Server Error', '', '')
   }
 
-  return c.json({ userId: created.userId, id: created.id, password: created.password }, 200)
+  return c.json({ name: created.name, userId: created.userId, password: created.password }, 200)
 }
