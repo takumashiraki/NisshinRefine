@@ -1,6 +1,7 @@
 import { createRoute } from '@hono/zod-openapi'
 import {
   createUserBodyOpenApiSchema,
+  createUserResponseOpenApiSchema,
   updateUserBodyOpenApiSchema,
   userErrorResponseOpenApiSchema,
   userOpenApiSchema,
@@ -24,7 +25,7 @@ export const createUserRoute = createRoute({
       description: 'Create user',
       content: {
         'application/json': {
-          schema: userOpenApiSchema,
+          schema: createUserResponseOpenApiSchema,
         },
       },
     },
@@ -49,7 +50,7 @@ export const createUserRoute = createRoute({
 
 export const getUserRoute = createRoute({
   method: 'get',
-  path: '/users/{userId}',
+  path: '/users/{id}',
   request: {
     params: userParamsOpenApiSchema,
   },
@@ -75,7 +76,7 @@ export const getUserRoute = createRoute({
 
 export const updateUserRoute = createRoute({
   method: 'put',
-  path: '/users/{userId}',
+  path: '/users/{id}',
   request: {
     params: userParamsOpenApiSchema,
     body: {
@@ -108,7 +109,7 @@ export const updateUserRoute = createRoute({
 
 export const deleteUserRoute = createRoute({
   method: 'delete',
-  path: '/users/{userId}',
+  path: '/users/{id}',
   request: {
     params: userParamsOpenApiSchema,
   },

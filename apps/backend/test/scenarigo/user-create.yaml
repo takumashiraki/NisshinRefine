@@ -7,6 +7,9 @@ scenarios:
           path: /users
           body:
             application/json:
+              provider: google
+              providerSubject: "1133557799"
+              appCode: nisshin-web
               name: 山田太郎
               email: taro@example.com
-              password: secret1234
+              expiresAt: 2026-03-01T00:00:00.000Z

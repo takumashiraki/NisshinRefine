@@ -2,10 +2,43 @@ import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const userTable = sqliteTable('user', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  userId: text('userId').notNull(),
   name: text('name').notNull(),
-  email: text('email'),
-  password: text('password'),
+  email: text('email').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const ssoAppTable = sqliteTable('sso_app', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  appCode: text('app_code').notNull(),
+  displayName: text('display_name'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const userIdentityTable = sqliteTable('user_identity', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  userId: integer('user_id').notNull(),
+  appId: integer('app_id').notNull(),
+  provider: text('provider').notNull(),
+  providerSubject: text('provider_subject').notNull(),
+  emailSnapshot: text('email_snapshot').notNull(),
+  nameSnapshot: text('name_snapshot').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const userSessionTable = sqliteTable('user_session', {
+  id: text('id').primaryKey(),
+  userId: integer('user_id').notNull(),
+  identityId: integer('identity_id').notNull(),
+  appId: integer('app_id').notNull(),
+  issuedAt: text('issued_at').notNull(),
+  expiresAt: text('expires_at').notNull(),
+  revokedAt: text('revoked_at'),
+  userAgent: text('user_agent'),
+  ipAddress: text('ip_address'),
+  createdAt: text('created_at').notNull(),
 })
 
 export const statusMetricTable = sqliteTable('status_metric', {

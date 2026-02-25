@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 import { createUserRoute, deleteUserRoute, getUserRoute, updateUserRoute } from './schemas/user'
@@ -44,7 +45,7 @@ interface D1Result {
 
 const app = new OpenAPIHono<Env>()
 
-app.doc('/openapi', {
+app.doc('/doc', {
   openapi: '3.0.0',
   info: {
     title: 'NisshinRefine API',
@@ -52,7 +53,7 @@ app.doc('/openapi', {
   },
 })
 
-app.get('/openapi/ui', swaggerUI({ url: '/openapi' }))
+app.get('/ui', swaggerUI({ url: '/doc' }))
 app.openapi(createUserRoute, createUser as any)
 app.openapi(getUserRoute, getUser as any)
 app.openapi(updateUserRoute, updateUser as any)

@@ -59,10 +59,10 @@
 
 ---
 
-## フェーズ 3: Frontend ベース実装（Vike + shadcn/ui）
+## フェーズ 3: Frontend ベース実装（Tanstack Start + @cloudflare/kumo）
 
-- **3-1: Vike + Bun + Cloudflare Pages 最小セットアップ**
-  - `apps/frontend` に Vike プロジェクトを作成
+- **3-1: Tanstack Start + Bun + Cloudflare Pages 最小セットアップ**
+  - `apps/frontend` にプロジェクトを作成
   - Cloudflare Pages へのビルド・デプロイ設定（簡易でよい）
 - **3-2: ディレクトリ構成**
   - package-by-feature をベースに layer を意識した構成
@@ -71,9 +71,9 @@
   - `packages/api-types` 由来のクライアントを使った API 通信フロー
   - シンプルな「ステータス表示」ページを 1 画面
 - **3-4: UI コンポーネント**
-  - shadcn/ui の導入
+  - @cloudflare/kumo の導入
   - ベースレイアウトと共通レイアウトコンポーネント（ヘッダー/フッター程度）
-- React Hook Form を使う
+- UIの作成は v0 で作成し、それをコンポーネント化し反映させます
 
 ---
 

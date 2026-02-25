@@ -6,15 +6,16 @@ export const metricCodeSchema = z.enum(['strength', 'routine', 'health'])
 export const mappingTypeSchema = z.enum(['formula_fixed', 'manual_1_10'])
 
 export const userSelectSchema = createSelectSchema(userTable, {
-  userId: z.string().uuid(),
-  email: z.string().email().nullable(),
-  password: z.string().nullable(),
+  id: z.number().int(),
+  email: z.string().email(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 })
 
 export const userInsertSchema = createInsertSchema(userTable, {
-  userId: z.string().uuid(),
-  email: z.string().email().nullable(),
-  password: z.string().nullable(),
+  email: z.string().email(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 })
 
 export const statusMetricSelectSchema = createSelectSchema(statusMetricTable, {
