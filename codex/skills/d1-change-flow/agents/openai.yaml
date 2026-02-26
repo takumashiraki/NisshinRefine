@@ -1,4 +1,4 @@
 interface:
   display_name: 'D1 変更フロー'
-  short_description: '安全なD1スキーマ/infra/usecase更新手順を適用'
-  default_prompt: 'このD1関連変更を、リポジトリのレイヤードフローに従って実装し、エラー系とロールバック観点まで検証してください。'
+  short_description: 'D1変更を安全手順で実装'
+  default_prompt: 'D1変更として、schema/infrastructure/usecaseの整合を保って実装し、失敗系とロールバック観点まで確認してください。'

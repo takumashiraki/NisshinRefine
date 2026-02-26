@@ -1,33 +1,40 @@
 ---
 name: wrangler
-description: NisshinRefine での Wrangler 運用 Skill。`apps/backend/wrangler.toml` を基準に、dev/deploy/D1 操作を安全に実行する。Wrangler コマンド実行や設定変更時に利用する。
+description: 発火: wrangler.toml 変更、Wrangler CLI 操作、binding 更新。設定と実装の整合を保って安全に運用する。
 ---
 
 # Wrangler 運用 Skill (NisshinRefine)
 
-## 対象範囲
+## 発火条件
 
-- 対象設定: `apps/backend/wrangler.toml`
-- 対象実装: `apps/backend/src/*`
-- 重点: D1 binding 整合、ローカル検証、設定差分の安全性
+- `apps/backend/wrangler.toml` を変更する
+- Wrangler CLI 実行や binding 変更が必要
 
-## ワークフロー
+## 入力前提
+
+- 変更対象環境（local/dev/prod）が明確である
+- 変更理由と影響範囲が明確である
+
+## 実行ステップ
 
 1. 現状確認
-- `apps/backend/wrangler.toml` の binding / compatibility_date を確認
-- 変更対象が API 契約に影響するか判定
-
-2. 実装
+- `apps/backend/wrangler.toml` の binding / compatibility_date を確認する
+- API 契約影響の有無を判定する
+2. 変更適用
 - 設定変更は最小差分で行う
-- D1 関連変更時は `$d1-change-flow` も適用する
+- D1 関連は `$d1-change-flow` を併用する
+3. 整合確認
+- binding 名変更時はコード参照側を同時更新する
+- 秘密情報を設定/ソースに直書きしない
 
-3. 検証
-- `bun run --cwd apps/backend dev`（必要時）
+## 検証コマンド
+
+- `bun run --cwd apps/backend dev` (必要時)
 - `bun run lint`
-- `bun run check:generated:clean`（API 契約に影響した場合）
+- `bun run check:generated:clean` (API 契約影響時)
 
-## ガードレール
+## 出力契約
 
-- 秘密情報を `wrangler.toml` やソースに直書きしない
-- binding 名変更時は参照コード側も同時更新する
-- 生成物が発生したら同一コミットに含める
+- 変更した binding/設定値を列挙する
+- 実行コマンドと確認結果を列挙する
+- API 契約影響の有無を明記する

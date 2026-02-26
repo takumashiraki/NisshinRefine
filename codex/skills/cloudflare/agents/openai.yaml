@@ -1,4 +1,4 @@
 interface:
   display_name: 'Cloudflare（NisshinRefine）'
-  short_description: 'Cloudflareタスクをリポジトリ標準フローへ接続'
-  default_prompt: 'Cloudflare関連の変更を、NisshinRefineのrules/skillsに沿って実装・検証してください。'
+  short_description: 'Cloudflare依頼を適切なSkillへルーティング'
+  default_prompt: 'Cloudflare関連依頼をルーティングし、必要な下位Skillを適用して実装またはレビューを進めてください。'

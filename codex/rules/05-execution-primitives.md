@@ -13,6 +13,7 @@
 ## プリミティブの役割
 
 - 長期不変の規範: `AGENTS.md`
+- ルーティング規則の正本: `codex/rules/07-dynamic-routing.md`
 - 実装領域別の具体ルール: `codex/rules/*.md`
 - 自動品質ゲート: `.githooks/*` + `scripts/codex/check-*.sh`
 - タスク別実行手順の再利用: `codex/skills/*`
@@ -20,6 +21,10 @@
 - MCP 接続前提の知識取得: `codex/skills/cloudflare*` と `scripts/codex/setup-mcp.sh`
 
 ## 選定フロー
+
+0. 依頼をルーティングする
+- `07-dynamic-routing.md` の判定テーブルで、依頼タイプと対象パスを確定する
+- 複合要求の場合は `$codex-orchestration` を起点に分割する
 
 1. 変更の性質を判定する
 - 規範か、実行手順か、自動検証か、単発作業かを決める
@@ -41,6 +46,7 @@
 
 | 変更したい内容 | 反映先 | 使わないこと | 担当 | レビュータイミング |
 |---|---|---|---|---|
+| 複合要求を分割し、並列調査の手順を定義したい | `codex/skills/codex-orchestration` + `codex/rules/07-dynamic-routing.md` | 実装手順を `AGENTS.md` に肥大化させる | リポジトリメンテナー | 複合要求発生時 |
 | リポジトリ全体の方針を追加・変更したい | `AGENTS.md` | `codex/skills/*` に方針だけを書く | リポジトリメンテナー | 方針変更時/四半期 |
 | バックエンド / フロントエンド / 品質 など領域別ルールを追加したい | `codex/rules/0x-*.md` | `AGENTS.md` に詳細実装手順を肥大化させる | ドメインメンテナー | 該当領域変更時 |
 | 毎回自動で強制したい品質チェックを追加したい | `.githooks/*` + `scripts/codex/check-*.sh` + `04-quality-gates.md` | 手動手順のみで運用する | リポジトリメンテナー | CI/hook 変更時 |
@@ -52,6 +58,7 @@
 ## 依頼内容と反映先の対応
 
 - 方針追加依頼 -> `AGENTS.md`
+- 依頼ルーティング最適化 -> `codex/rules/07-dynamic-routing.md` + `codex/skills/codex-orchestration`
 - バックエンド設計ルール追加依頼 -> `codex/rules/02-backend-hono-d1.md`
 - API 契約変更フロー追加依頼 -> `codex/skills/api-contract-flow` + `codex/rules/03-frontend-api-contract.md`
 - 品質チェック強化依頼 -> `.githooks/*` + `scripts/codex/check-*.sh` + `codex/rules/04-quality-gates.md`

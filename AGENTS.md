@@ -1,129 +1,67 @@
-# Codex 運用指示 (NisshinRefine)
+# Codex 運用ルータ (NisshinRefine)
 
-このファイルは NisshinRefine における Codex 運用の唯一の正本です。Codex 最適化を優先し、詳細ルールは `codex/rules/*.md` で管理します。
+このファイルは、NisshinRefine で Codex がどの `rules` と `skills` を読むかを決めるルータです。詳細手順は `codex/rules/*.md` と `codex/skills/*` を正本とします。
 
-## 概要
+## 0. ルーティング早見表
 
-- 対象: monorepo (`apps/*`, `packages/*`, `docs/*`)
-- 目的: Codex が常に同じ実装品質・変更フローで動作すること
-- 運用プリミティブ選定ガイド: `codex/rules/05-execution-primitives.md`
-- 基本方針:
-  - まず探索し、最小差分で変更する
-  - 生成物は生成フローで更新し、手編集しない
-  - hooks は Codex が直接実行しない前提で、Git hooks + CI で担保する
-- 詳細ルール:
-  - `codex/rules/01-core-workflow.md`
-  - `codex/rules/02-backend-hono-d1.md`
-  - `codex/rules/03-frontend-api-contract.md`
-  - `codex/rules/04-quality-gates.md`
-  - `codex/rules/05-execution-primitives.md`
-  - `codex/rules/06-cloudflare-mcp.md`
+| 依頼タイプ | 主なトリガー語 | 読むルール | 適用 Skill | 最低限の検証 |
+|---|---|---|---|---|
+| API 契約変更 | endpoint, schema, openapi, orval, generated hooks | `03-frontend-api-contract.md` `05-execution-primitives.md` | `$api-contract-flow` | `bun run generate:api-types` `bun run check:generated:clean` |
+| D1 挙動変更 | D1, query, persistence, DB | `02-backend-hono-d1.md` `05-execution-primitives.md` | `$d1-change-flow` | `bun run lint` `bun run test` |
+| Cloudflare 全般 | Workers, Wrangler, D1 binding, deploy | `06-cloudflare-mcp.md` `07-dynamic-routing.md` | `$cloudflare` `$wrangler` `$workers-best-practices` | `bun run lint` |
+| Agents SDK/MCP | Agent, McpAgent, MCP server | `06-cloudflare-mcp.md` `07-dynamic-routing.md` | `$agents-sdk` `$building-mcp-server-on-cloudflare` | `bun run lint` |
+| PR 前チェック | release gate, pre-merge, readiness | `04-quality-gates.md` | `$release-gate-check` | `bun run check:prepush` |
+| 複合要求 | 複数ドメイン同時依頼 | `01-core-workflow.md` `07-dynamic-routing.md` | `$codex-orchestration` + 関連 Skill | 影響範囲に応じて合成 |
 
-## リポジトリ構成
+## 1. 基本契約
 
-- `apps/backend`: Cloudflare Workers + Hono API
-  - `src/app.ts`: `OpenAPIHono<Env>` エントリポイント
-  - `src/schemas`: OpenAPI ルートスキーマ
-  - `src/usecase`: ハンドラー / ビジネスロジック
-  - `src/infrastructure`: D1 アクセスクラス
-- `apps/frontend`: Next.js frontend
-  - `src/features/status/api/generated`: Orval 生成 hooks / models
-- `packages/validation`: domain/api/OpenAPI の Zod 定義
-- `packages/api-types`: OpenAPI / Orval 生成物
-- `codex/rules`: Codex 実装ルール
-- `codex/skills`: プロジェクト専用 Skill
+- 先に探索し、根拠のある最小差分で変更する
+- 生成物は生成フローで更新し、手編集しない
+- 詳細運用はルール/Skill へ委譲し、このファイルは方針と分岐のみを保持する
+- 不明点を推測で埋めず、必要なら前提を明示する
 
-## コーディング規約
+## 2. Dynamic Routing
 
-- TypeScript スタイルは `single quote` + `no semicolon` を維持する
-- import order は `external -> type import -> internal` を基本とする
-- backend は `schemas <- usecase -> infrastructure` の依存方向を守る
-- D1 操作は `db.batch([db.prepare(query).bind(...)])` を使う
-- `errorResponse()` のレスポンス形を崩さない
-- frontend は `generated` 配下の型・hooksを利用し、手書き API 型を作らない
-- ルール逸脱が必要な場合はコメントで理由を残す
+- Dynamic Rules 相当の運用は `codex/rules/07-dynamic-routing.md` で定義する
+- 判定軸は `トリガー語 + 対象パス + 依頼タイプ`
+- 実装前に必ずルーティング結果を確定し、必要 Skill を選ぶ
 
-## API 契約フロー
+## 3. 疑似マルチエージェント方針
 
-API 変更は必ず以下順序で行う:
+- 役割は `Planner` `Investigators` `Synthesizer` の 3 つ
+- `Investigators` の探索は `multi_tool_use.parallel` を使った並列調査に限定する
+- 実行手順は `$codex-orchestration` と `07-dynamic-routing.md` を正本にする
 
-1. `packages/validation/src/openapi` と `apps/backend/src/schemas` を更新
-2. OpenAPI を再出力
-   - `bun run --cwd apps/backend openapi:export`
-3. Orval 生成を実行
-   - `bun run --cwd packages/api-types generate`
-   - または `bun run generate:api-types`
-4. frontend 実装で `apps/frontend/src/features/status/api/generated` の hooks を利用
-5. 生成物差分をコミットに含める
+## 4. Skill 一覧
 
-## 品質ゲート
+- `$codex-orchestration`: 複合依頼の分割、並列調査、統合手順を適用
+- `$api-contract-flow`: API 契約変更の定型フローを適用
+- `$d1-change-flow`: D1 変更の安全手順を適用
+- `$release-gate-check`: PR 前のゲート確認を適用
+- `$cloudflare`: Cloudflare 全体タスクを標準フローへ振り分け
+- `$wrangler`: Wrangler 設定/CLI 操作を適用
+- `$workers-best-practices`: Workers 実装の監査観点を適用
+- `$agents-sdk`: Agents SDK 導入・拡張フローを適用
+- `$building-mcp-server-on-cloudflare`: Cloudflare 上の MCP サーバー構築を適用
 
-- ローカル:
-  - pre-commit: `bun run check:staged` (軽量)
-  - pre-push: `bun run check:prepush` (重め)
-- CI (`.github/workflows/quality-gates.yml`):
-  - `bun run lint`
-  - `bun run typecheck`
-  - `bun run test`
-  - `bun run check:generated:clean`
-- 導入コマンド:
-  - `bun run hooks:install`
-  - `bun run hooks:verify`
-- 重要:
-  - Codex は hooks 自体を直接実行するのではなく、結果として hooks/CI を通る変更を作る
-  - 現時点で `test` / `typecheck` は placeholder を含むため、lint + 生成物同期チェックを重視する
+同期コマンド:
 
-## Skill 利用
-
-このリポジトリのプロジェクト Skill は `codex/skills` を正本とし、必要に応じて同期する。
-使い分けの判断は `codex/rules/05-execution-primitives.md` を参照する。
-
-- `$api-contract-flow`: API 契約変更の定型フローを実行
-- `$d1-change-flow`: D1 変更時の安全手順を実行
-- `$release-gate-check`: PR 前の自己検証を実行
-- `$cloudflare`: Cloudflare 全体タスクをリポジトリ標準フローへ振り分け
-- `$wrangler`: Wrangler 設定/CLI 運用
-- `$workers-best-practices`: Workers 実装レビューと改善
-- `$agents-sdk`: Agents SDK 導入・拡張
-- `$building-mcp-server-on-cloudflare`: Cloudflare 上の MCP サーバー構築
-
-ローカル同期:
-
-- `sh scripts/codex/sync-skills.sh`
 - `bun run skills:sync`
 
-## Cloudflare Skills 置換ポリシー
+## 5. 品質ゲート
 
-- このリポジトリは Cloudflare Skills を `codex/skills/*` の同名ディレクトリで管理し、`sync-skills.sh` で `~/.codex/skills` を上書き同期する
-- 外部 Skill をそのまま利用せず、NisshinRefine のルール (`codex/rules/*`) と品質ゲートへ接続した内容を正本とする
+- ローカルゲート: pre-commit `bun run check:staged`, pre-push `bun run check:prepush`
+- CI ゲート: `.github/workflows/quality-gates.yml`
+- 現時点では `lint` と `check:generated:clean` を特に重視する
 
-## MCP 利用
+## 6. MCP 方針
 
-- セットアップ:
-  - `bun run mcp:setup`
-- 検証:
-  - `bun run mcp:verify`
-- 方針:
-  - 仕様変化が早い Cloudflare/Agents SDK/Wrangler は、記憶優先ではなく MCP で一次情報を取得してから実装する
-  - 利用する MCP サーバーは `context7` と `serena` を標準とする
-  - MCP の設定正本は `~/.codex/config.toml` とし、リポジトリからは `scripts/codex/setup-mcp.sh` で冪等セットアップする
+- セットアップ: `bun run mcp:setup`
+- 検証: `bun run mcp:verify`
+- Cloudflare/Wrangler/Agents SDK は記憶優先にせず、MCP で一次情報を取得してから実装する
 
-## 非採用機能ポリシー
+## 7. 非採用ポリシー
 
-- `CLAUDE.md`: このリポジトリでは正本として扱わない
-- `slash command`: Codex 運用では未採用。必要な定型操作は `scripts/codex/*.sh` と `codex/skills/*` に定義する
-- `sub-agent` (Claude 系): 未採用。Codex では `codex/skills/*/agents/openai.yaml` に集約して扱う
-
-## 実施事項 / 禁止事項
-
-Do:
-
-- 変更前に既存コードと生成フローを確認する
-- 小さな差分で実装し、関連ドキュメントも同時更新する
-- 失敗時は再現コマンドを残す
-
-Don't:
-
-- 生成物 (`generated`, `status.openapi.json`, `status.zod.ts`) を手で編集しない
-- 未確認の推測で API 契約やエラー形式を変えない
-- hooks / CI を一時的に無効化した状態で品質保証済みと判断しない
+- `CLAUDE.md` は正本にしない
+- slash command は未採用
+- Claude 系 sub-agent は未採用

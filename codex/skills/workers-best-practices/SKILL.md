@@ -1,27 +1,42 @@
 ---
 name: workers-best-practices
-description: NisshinRefine の Cloudflare Workers 実装/レビュー用 Skill。Workers 特有のアンチパターンを排除し、MCP で最新仕様を確認してから修正・レビューする。
+description: 発火: Workers実装レビュー、waitUntil、グローバル状態、binding整合。最新仕様確認付きで改善点を抽出する。
 ---
 
 # Workers ベストプラクティス (NisshinRefine)
 
-## 先に仕様を取得する
+## 発火条件
 
-Workers API や Wrangler 仕様は更新されるため、必要箇所は MCP で確認する。
+- 依頼に `Workers review`, `waitUntil`, `global state`, `binding` が含まれる
+- Cloudflare Workers の品質監査が目的
 
-- Context7 MCP で対象ライブラリの最新仕様を取得
-- 取得できない場合のみローカル実装・既存定義を優先して推論
+## 入力前提
 
-## レビューチェックリスト
+- 対象ファイルまたは対象機能が明確である
+- 実装レビューか修正実装かが明確である
 
-1. `ctx.waitUntil()` を使うべき非同期処理が漏れていない
-2. request 単位の状態をグローバル可変変数で保持していない
-3. シークレットやトークンのハードコードがない
-4. D1/Binding 参照と `wrangler.toml` が一致している
-5. 変更後に `bun run lint` を通す
+## 実行ステップ
 
-## リポジトリ固有ルール
+1. 仕様確認
+- Workers/Wrangler の必要箇所を Context7 で確認する
+- 取得不能時のみローカル実装から推論する
+2. レビュー実施
+- `ctx.waitUntil()` が必要な非同期処理漏れを確認する
+- request 単位状態をグローバル可変変数で保持していないか確認する
+- シークレット/トークンのハードコード有無を確認する
+- D1/binding 参照と `wrangler.toml` の一致を確認する
+3. リポジトリ規約適用
+- D1 は `db.batch([db.prepare(query).bind(...)])`
+- `errorResponse()` 契約を維持
+- API 契約変更は `$api-contract-flow` を併用
 
-- D1 クエリは `db.batch([db.prepare(query).bind(...)])`
-- `errorResponse()` 契約を壊さない
-- API 契約変更は `$api-contract-flow` を必ず適用
+## 検証コマンド
+
+- `bun run lint`
+- 必要に応じて `bun run check:generated:clean`
+
+## 出力契約
+
+- 指摘事項を重大度順に列挙する
+- 修正提案があれば対象ファイルと理由を明記する
+- 推論を含む場合は推論であることを明記する

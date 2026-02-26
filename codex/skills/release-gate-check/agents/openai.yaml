@@ -1,4 +1,4 @@
 interface:
   display_name: 'リリースゲート確認'
-  short_description: 'PR前の品質と互換性を確認'
-  default_prompt: 'PR前のリリースゲート確認を実施し、リスク、カバレッジ、追加で必要な修正を報告してください。'
+  short_description: 'PR前の品質と互換性を検証'
+  default_prompt: 'PR前チェックとして品質ゲートと互換性確認を実行し、リスクと未検証項目を報告してください。'

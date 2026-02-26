@@ -1,36 +1,42 @@
 ---
 name: cloudflare
-description: NisshinRefine 向け Cloudflare 統合 Skill。Workers/D1/デプロイ/MCP 関連タスクで、リポジトリルールに沿った最短実装フローへ誘導する。Cloudflare、Workers、D1、Wrangler、MCP、Agent などの要求で利用する。
+description: 発火: Cloudflare、Workers、Wrangler、D1、MCP、Agent。関連依頼をルーティングし、必要な下位Skillへ接続する。
 ---
 
 # NisshinRefine Cloudflare 連携 Skill
 
-この Skill は Cloudflare タスクをリポジトリ固有フローに接続するハブ。
+## 発火条件
 
-## 最初に行うこと
+- 依頼に `Cloudflare`, `Workers`, `Wrangler`, `D1`, `MCP`, `Agent` が含まれる
+- 実装/レビューが Cloudflare 依存である
 
-1. `AGENTS.md` と以下ルールを読む
-- `codex/rules/02-backend-hono-d1.md`
-- `codex/rules/04-quality-gates.md`
-- `codex/rules/05-execution-primitives.md`
+## 入力前提
 
-2. 要求を次へ振り分ける
+- 依頼の主目的（実装/レビュー/運用）が明確である
+- 変更対象（`apps/backend` か設定ファイルか）が明確である
+
+## 実行ステップ
+
+1. ルール確認
+- `AGENTS.md` `codex/rules/06-cloudflare-mcp.md` `codex/rules/07-dynamic-routing.md` を確認する
+2. 依頼を振り分け
 - API 契約変更: `$api-contract-flow`
 - D1 挙動変更: `$d1-change-flow`
 - Wrangler 操作/環境操作: `$wrangler`
-- Worker ベストプラクティス監査: `$workers-best-practices`
-- Agents SDK / MCP サーバー構築: `$agents-sdk`, `$building-mcp-server-on-cloudflare`
+- Workers 実装監査: `$workers-best-practices`
+- Agents SDK / MCP サーバー構築: `$agents-sdk` `$building-mcp-server-on-cloudflare`
+- 複合要求: `$codex-orchestration` を併用する
+3. MCP で一次情報取得
+- Context7 で対象仕様を確認し、取得結果を前提に実装/レビューする
 
-## MCP 優先取得ルール
+## 検証コマンド
 
-Cloudflare API や CLI 仕様が絡む場合は、記憶ではなく MCP で一次情報を取る。
-
-1. Context7 MCP で対象ライブラリ ID を解決する
-2. 公式ドキュメント相当の一次情報を取得する
-3. 取得結果を前提に実装・レビューする
+- `bun run mcp:verify`
+- `bun run lint`
+- 必要に応じて `bun run check:generated:clean`
 
 ## 出力契約
 
-- 実行したコマンドを列挙する
-- 変更ファイルと影響範囲を明示する
-- 未検証項目があれば理由付きで残す
+- 適用したルーティング先 Skill を列挙する
+- 実行コマンドと変更ファイルを列挙する
+- 未検証項目があれば理由を明記する

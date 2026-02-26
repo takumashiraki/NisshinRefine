@@ -19,6 +19,7 @@ Cloudflare 関連実装で、古い記憶や環境依存手順による差分を
 | Worker コードレビュー | `codex/skills/workers-best-practices` |
 | Agents SDK 導入 | `codex/skills/agents-sdk` |
 | MCP サーバー構築 | `codex/skills/building-mcp-server-on-cloudflare` |
+| 複合要求の分割と並列調査 | `codex/skills/codex-orchestration` |
 
 ## MCP 運用ルール
 

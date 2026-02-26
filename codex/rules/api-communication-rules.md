@@ -1,12 +1,11 @@
-# API 通信ルール（互換参照）
+# API 通信ルール（互換参照のみ）
 
-このファイルは互換参照用です。正本は `03-frontend-api-contract.md` に統合されています。
+このファイルは互換参照専用です。仕様本文は保持しません。
 
 - 正本: `codex/rules/03-frontend-api-contract.md`
-- 目的: API 通信フローを `zod -> OpenAPI -> Orval -> frontend` に統一する
-- 禁止: 手書き API 型/hooks の追加、生成物の直接編集
+- 理由: API 契約フローの重複定義を避け、正本を一箇所に固定する
 
-実行コマンド:
+参照コマンド:
 
 - `bun run --cwd apps/backend openapi:export`
 - `bun run --cwd packages/api-types generate`

@@ -1,4 +1,4 @@
 interface:
   display_name: 'Cloudflare で MCP サーバー構築'
-  short_description: 'Cloudflare上のMCPサーバー構築フロー'
-  default_prompt: 'Cloudflare WorkersでMCPサーバーを構築し、Codexから使える状態まで手順化・実装してください。'
+  short_description: 'Cloudflare上のMCPサーバー設計と実装'
+  default_prompt: 'Cloudflare Workers上のMCPサーバーを設計・実装し、認証方式と疎通確認まで実施してください。'

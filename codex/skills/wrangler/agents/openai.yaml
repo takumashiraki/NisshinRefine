@@ -1,4 +1,4 @@
 interface:
   display_name: 'Wrangler（NisshinRefine）'
-  short_description: 'Wrangler設定とCLI操作を安全運用'
-  default_prompt: 'Wrangler設定とCLI操作を最小差分で実施し、必要な検証コマンドまで実行してください。'
+  short_description: 'Wrangler設定とCLI操作の整合確認'
+  default_prompt: 'Wrangler変更として設定とコード参照の整合を保ち、必要な検証コマンドまで実施してください。'

@@ -1,26 +1,42 @@
 ---
 name: release-gate-check
-description: NisshinRefine の PR 前リリースゲート確認用 Skill。生成物同期、破壊的変更、エラー契約整合性を検証する。pre-merge チェック、準備完了レビュー、リリース検証の要求で利用する。
+description: 発火: pre-merge、release gate、readiness。PR前に品質ゲート、互換性、エラー契約を確認する。
 ---
 
 # リリースゲート確認
 
-PR を作成または更新する前に、以下のチェックリストを実行する。
+## 発火条件
 
-1. 品質ゲート
-- `bun run lint` を実行する
-- `bun run typecheck` を実行する
-- `bun run test` を実行する
-- `bun run check:generated:clean` を実行する
+- 依頼に `PR前`, `release gate`, `pre-merge`, `readiness` が含まれる
+- マージ前の最終確認が必要
 
+## 入力前提
+
+- 対象 PR の変更範囲が把握できている
+- API 変更が含まれる場合は影響範囲が把握できている
+
+## 実行ステップ
+
+1. 品質ゲート実行
+- `lint` `typecheck` `test` `check:generated:clean` を実行する
 2. 破壊的変更スキャン
-- ルートパス、レスポンス形、必須フィールドが意図せず変わっていないか確認する
-- API 変更がある場合、生成物がコミットされているか確認する
-
+- ルート、レスポンス形、必須フィールドの意図しない変更を確認する
+- API 変更がある場合は生成物コミット有無を確認する
 3. エラー契約スキャン
-- 変更した usecase で `errorResponse()` の利用が一貫しているか確認する
-- エラーコードとペイロード形式の互換性を確認する
+- 変更 usecase で `errorResponse()` 利用が一貫しているか確認する
+- エラーコード/ペイロード互換性を確認する
+4. 結果整理
+- 挙動変更、リスク、未検証項目を整理する
 
-4. PR サマリー
-- 挙動変更、リスク、実行コマンドを列挙する
-- tests/typecheck が stub の場合はカバレッジ制約を明記する
+## 検証コマンド
+
+- `bun run lint`
+- `bun run typecheck`
+- `bun run test`
+- `bun run check:generated:clean`
+
+## 出力契約
+
+- 実行コマンドと結果を列挙する
+- 破壊的変更リスクを有無付きで明記する
+- tests/typecheck が stub の場合は制約を明記する
