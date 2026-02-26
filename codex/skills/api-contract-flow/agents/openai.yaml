@@ -1,0 +1,4 @@
+interface:
+  display_name: 'API 契約フロー'
+  short_description: 'API変更時の再生成フローを実行'
+  default_prompt: 'API契約変更として扱い、schema更新からOpenAPI/Orval再生成、generated同期確認まで実施してください。'
