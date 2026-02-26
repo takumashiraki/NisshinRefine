@@ -124,6 +124,14 @@ class UserDatabase {
     async deleteUserById(db: D1Database, _table: string, payload: { id: number }): Promise<{ result: UserRow | null }> {
         try {
             const database = drizzle(db as any)
+            await database
+                .delete(userSessionTable)
+                .where(eq(userSessionTable.userId, payload.id))
+
+            await database
+                .delete(userIdentityTable)
+                .where(eq(userIdentityTable.userId, payload.id))
+
             const rows = await database
                 .delete(userTable)
                 .where(eq(userTable.id, payload.id))
