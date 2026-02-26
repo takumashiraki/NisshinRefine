@@ -25,3 +25,6 @@ apps/frontend/.next/
 
 # Cloudflare Wrangler local state
 apps/backend/.wrangler/
+
+# Codex Tasks
+tasks/*

@@ -23,3 +23,20 @@
   - `lint` は既存 `apps/frontend/next-env.d.ts` の warning 1 件、error 0 件
   - `skills:sync` で新規 `codex-orchestration` を含む 9 Skill を `~/.codex/skills` へ同期
   - `~/.codex/AGENTS.md` を Codex 向けグローバル最小契約へ更新
+
+## README整備（Root / Backend / Frontend）
+
+- [x] 既存構成と実行コマンドを確認し、README記載項目を確定する
+- [x] Root README を作成する（概要、構成図、起動手順、Agentドキュメント、pre-commit）
+- [x] Backend README を作成する（必要バージョン、起動手順、DB確認手順）
+- [x] Frontend README を作成する（必要バージョン、起動手順）
+- [x] 関連コマンドで内容を検証し、レビュー結果を記録する
+
+## レビュー（README整備）
+
+- 実行コマンド:
+  - `bun run hooks:verify`
+  - `bun run lint`
+- 結果:
+  - `hooks:verify` は `core.hooksPath=.githooks` で正常
+  - `lint` は既存 `apps/frontend/next-env.d.ts` に warning 1 件、error 0 件
