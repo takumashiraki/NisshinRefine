@@ -1,278 +1,129 @@
-# Codex Instructions (NisshinRefine)
+# Codex 運用指示 (NisshinRefine)
 
-This file migrates the repo-specific Claude rules from `op-tennis/Backend/.claude` so Codex can use them here. Follow these rules for work in this repository.
+このファイルは NisshinRefine における Codex 運用の唯一の正本です。Codex 最適化を優先し、詳細ルールは `codex/rules/*.md` で管理します。
 
-**Architecture**
+## 概要
 
-Stack:
-- Runtime: Cloudflare Workers
-- Framework: Hono (`OpenAPIHono<Env>`) + `@hono/zod-openapi`
-- Validation: Zod
-- Database: Cloudflare D1 (SQLite)
-- Docs: `@hono/swagger-ui` (`/ui`, `/doc`)
+- 対象: monorepo (`apps/*`, `packages/*`, `docs/*`)
+- 目的: Codex が常に同じ実装品質・変更フローで動作すること
+- 運用プリミティブ選定ガイド: `codex/rules/05-execution-primitives.md`
+- 基本方針:
+  - まず探索し、最小差分で変更する
+  - 生成物は生成フローで更新し、手編集しない
+  - hooks は Codex が直接実行しない前提で、Git hooks + CI で担保する
+- 詳細ルール:
+  - `codex/rules/01-core-workflow.md`
+  - `codex/rules/02-backend-hono-d1.md`
+  - `codex/rules/03-frontend-api-contract.md`
+  - `codex/rules/04-quality-gates.md`
+  - `codex/rules/05-execution-primitives.md`
+  - `codex/rules/06-cloudflare-mcp.md`
 
-3-layer architecture:
-```
-src/schemas/       -> Zod schemas + createRoute()
-src/usecase/       -> handlers (business logic)
-src/infrastructure/-> D1 database classes
-src/middleware/     -> auth/validation middleware
-```
+## リポジトリ構成
 
-Dependency direction: `schemas <- usecase -> infrastructure`
+- `apps/backend`: Cloudflare Workers + Hono API
+  - `src/app.ts`: `OpenAPIHono<Env>` エントリポイント
+  - `src/schemas`: OpenAPI ルートスキーマ
+  - `src/usecase`: ハンドラー / ビジネスロジック
+  - `src/infrastructure`: D1 アクセスクラス
+- `apps/frontend`: Next.js frontend
+  - `src/features/status/api/generated`: Orval 生成 hooks / models
+- `packages/validation`: domain/api/OpenAPI の Zod 定義
+- `packages/api-types`: OpenAPI / Orval 生成物
+- `codex/rules`: Codex 実装ルール
+- `codex/skills`: プロジェクト専用 Skill
 
-Entry point: `src/app.ts`
-```
-const app = new OpenAPIHono<Env>()
-```
-Bindings include `backend` (D1Database), `ENVIRONMENT`, `LOCAL_ENDPOINT`, `ENDPOINT`, `JWT_SECRET`, `LINE_CHANNEL_ID?`.  
-Extend `ContextVariableMap` with `auth: { userId, sessionId }`.
+## コーディング規約
 
-Route registration pattern:
-```ts
-app.openapi(createUserRoute, userCreate as any)
-app.openapi(loginRoute, verifyLineIdToken as any, lineLogin as any)
-```
-`as any` cast is required. Add `/* eslint-disable @typescript-eslint/no-explicit-any */` at top.
+- TypeScript スタイルは `single quote` + `no semicolon` を維持する
+- import order は `external -> type import -> internal` を基本とする
+- backend は `schemas <- usecase -> infrastructure` の依存方向を守る
+- D1 操作は `db.batch([db.prepare(query).bind(...)])` を使う
+- `errorResponse()` のレスポンス形を崩さない
+- frontend は `generated` 配下の型・hooksを利用し、手書き API 型を作らない
+- ルール逸脱が必要な場合はコメントで理由を残す
 
-Resource structure:
-```
-src/schemas/{resource}.ts
-src/usecase/{resource}/post.ts
-src/usecase/{resource}/get.ts
-src/usecase/{resource}/update.ts
-src/usecase/{resource}/delete.ts
-src/infrastructure/{resource}.ts
-```
+## API 契約フロー
 
-New resource steps:
-1. Add Zod schema + `createRoute()` in `src/schemas/{resource}.ts`
-2. Add D1 class in `src/infrastructure/{resource}.ts`
-3. Add CRUD handlers under `src/usecase/{resource}/`
-4. Register in `src/app.ts` using `app.openapi()`
+API 変更は必ず以下順序で行う:
 
-**Error Handling**
+1. `packages/validation/src/openapi` と `apps/backend/src/schemas` を更新
+2. OpenAPI を再出力
+   - `bun run --cwd apps/backend openapi:export`
+3. Orval 生成を実行
+   - `bun run --cwd packages/api-types generate`
+   - または `bun run generate:api-types`
+4. frontend 実装で `apps/frontend/src/features/status/api/generated` の hooks を利用
+5. 生成物差分をコミットに含める
 
-`errorResponse()` in `src/usecase/response.ts`:
-```ts
-errorResponse(c, resCode, errorCode, field, message): Response
-```
+## 品質ゲート
 
-Status response formats:
-```json
-{ "error_code": "Resource Not Found" }
-```
-```json
-{
-  "error_code": "Invalid Request",
-  "errors": [{ "message": "already exist", "field": "userId" }]
-}
-```
-```json
-{ "error_code": "Internal Server Error" }
-```
+- ローカル:
+  - pre-commit: `bun run check:staged` (軽量)
+  - pre-push: `bun run check:prepush` (重め)
+- CI (`.github/workflows/quality-gates.yml`):
+  - `bun run lint`
+  - `bun run typecheck`
+  - `bun run test`
+  - `bun run check:generated:clean`
+- 導入コマンド:
+  - `bun run hooks:install`
+  - `bun run hooks:verify`
+- 重要:
+  - Codex は hooks 自体を直接実行するのではなく、結果として hooks/CI を通る変更を作る
+  - 現時点で `test` / `typecheck` は placeholder を含むため、lint + 生成物同期チェックを重視する
 
-401 usage example:
-```ts
-return errorResponse(c, 401, "AUTH_ERROR", "", "Invalid LINE ID token")
-```
+## Skill 利用
 
-Error codes:
-`Resource Not Found`, `Invalid Request`, `Internal Server Error`, `AUTH_ERROR`,
-`VALIDATION_ERROR`, `DATABASE_ERROR`, `INTERNAL_ERROR`, `NOT_FOUND`, `Page Not Found`.
+このリポジトリのプロジェクト Skill は `codex/skills` を正本とし、必要に応じて同期する。
+使い分けの判断は `codex/rules/05-execution-primitives.md` を参照する。
 
-Try-catch patterns:
-1. Usecase: catch per DB call and return `errorResponse()`
-2. Infrastructure: never throw; `console.error` and return defaults
-3. `line/login` and `line/logout`: wrap whole handler in try-catch
+- `$api-contract-flow`: API 契約変更の定型フローを実行
+- `$d1-change-flow`: D1 変更時の安全手順を実行
+- `$release-gate-check`: PR 前の自己検証を実行
+- `$cloudflare`: Cloudflare 全体タスクをリポジトリ標準フローへ振り分け
+- `$wrangler`: Wrangler 設定/CLI 運用
+- `$workers-best-practices`: Workers 実装レビューと改善
+- `$agents-sdk`: Agents SDK 導入・拡張
+- `$building-mcp-server-on-cloudflare`: Cloudflare 上の MCP サーバー構築
 
-**Infrastructure (src/infrastructure/)**
+ローカル同期:
 
-Class per resource, default export. Name: `{Resource}Database`.
+- `sh scripts/codex/sync-skills.sh`
+- `bun run skills:sync`
 
-Define D1 interfaces locally (do not rely on `@cloudflare/workers-types`):
-```ts
-interface D1Database {
-  prepare(query: string): D1PreparedStatement
-  batch(statements: D1PreparedStatement[]): Promise<D1Result[]>
-}
-interface D1PreparedStatement {
-  bind(...values: (string | number | Date | null)[]): D1PreparedStatement
-}
-interface D1Result {
-  results?: Record<string, string | number | Date>[]
-  success: boolean
-  error?: string
-}
-```
+## Cloudflare Skills 置換ポリシー
 
-Use `db.batch([db.prepare(query).bind(...)])` for all queries.  
-INSERT / UPDATE / DELETE must include `RETURNING`.
+- このリポジトリは Cloudflare Skills を `codex/skills/*` の同名ディレクトリで管理し、`sync-skills.sh` で `~/.codex/skills` を上書き同期する
+- 外部 Skill をそのまま利用せず、NisshinRefine のルール (`codex/rules/*`) と品質ゲートへ接続した内容を正本とする
 
-Return value:
-- Success: `{ result: T }`
-- No result: `{ result: null }` or properties set to `undefined`
-- On error: do not throw; return defaults and `console.error`
+## MCP 利用
 
-Method naming: `create{Resource}`, `select{Resource}`/`get{Resource}`, `update{Resource}`, `delete{Resource}`.  
-Method signature: `(db: D1Database, table: string, ...)` with table name passed in.
+- セットアップ:
+  - `bun run mcp:setup`
+- 検証:
+  - `bun run mcp:verify`
+- 方針:
+  - 仕様変化が早い Cloudflare/Agents SDK/Wrangler は、記憶優先ではなく MCP で一次情報を取得してから実装する
+  - 利用する MCP サーバーは `context7` と `serena` を標準とする
+  - MCP の設定正本は `~/.codex/config.toml` とし、リポジトリからは `scripts/codex/setup-mcp.sh` で冪等セットアップする
 
-**Middleware (src/middleware/)**
+## 非採用機能ポリシー
 
-Verification logic is class-based, default export:
-```ts
-class LineVerifier {
-  async verifyLineIdToken(idToken: string, channelId: string, nonce?: string) {}
-}
-export default LineVerifier
-```
+- `CLAUDE.md`: このリポジトリでは正本として扱わない
+- `slash command`: Codex 運用では未採用。必要な定型操作は `scripts/codex/*.sh` と `codex/skills/*` に定義する
+- `sub-agent` (Claude 系): 未採用。Codex では `codex/skills/*/agents/openai.yaml` に集約して扱う
 
-Result type:
-```ts
-export interface LineVerificationResult {
-  success: boolean
-  payload?: LineIdTokenPayload
-  error?: string
-}
-```
+## 実施事項 / 禁止事項
 
-External API calls use `fetch()`.  
-Session verification is also exported as a function.  
-Middleware is registered as `app.openapi(route, middleware as any, handler as any)`.
+Do:
 
-**Schemas (src/schemas/)**
+- 変更前に既存コードと生成フローを確認する
+- 小さな差分で実装し、関連ドキュメントも同時更新する
+- 失敗時は再現コマンドを残す
 
-File header:
-```ts
-/* eslint-disable @typescript-eslint/naming-convention */
-import { z } from "zod"
-import { createRoute } from "@hono/zod-openapi"
-```
+Don't:
 
-All properties require `.openapi({ example })`.  
-Object schema needs `.openapi("Name")`.
-
-Params schema naming: `{resource}ParamsSchema`.  
-Error schema shape:
-```ts
-export const ErrorSchema = z
-  .object({ error: z.string(), message: z.string() })
-  .openapi("Error")
-```
-
-Header fields are defined in lowercase.
-
-**Usecase (src/usecase/)**
-
-Header template:
-```ts
-/* eslint-disable @typescript-eslint/naming-convention */
-import type { Context } from "hono"
-import UserDatabase from "./../../infrastructure/user"
-import type { Env } from "./../../app"
-import { errorResponse } from "./../response"
-```
-
-Handler naming: `{action}{Resource}` in camelCase.  
-Signature uses `Context<Env, path, { in: { ... } }>` and returns `Promise<Response>`.
-
-Request data access:
-```
-c.req.param()
-await c.req.json()
-c.env
-c.req.header("session_id")
-```
-
-DB pattern:
-```
-const db = new UserDatabase()
-;({ result: getReturn } = await db.selectUser(env.backend, "user", { userId }))
-```
-
-Response patterns:
-```
-return c.json({ userId, id, password }, 200)
-return errorResponse(c, 404, "Resource Not Found", "", "")
-return errorResponse(c, 409, "Invalid Request", "userId", "already exist")
-return errorResponse(c, 500, "Internal Server Error", "", "")
-```
-
-Import order:
-1. External packages
-2. Type imports
-3. infrastructure
-4. same-level modules
-5. schemas
-
-**TypeScript Style**
-
-Prettier:
-```json
-{
-  "semi": false,
-  "trailingComma": "all",
-  "singleQuote": true,
-  "printWidth": 120,
-  "tabWidth": 4
-}
-```
-
-ESLint naming conventions:
-- default, variableLike: camelCase
-- property: camelCase or snake_case
-- interface, typeLike: PascalCase
-
-File naming: camelCase.  
-Directory naming: lowercase.  
-Use `import type` for types.  
-Top-of-file eslint-disable when needed:
-```
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable camelcase */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-```
-
-TSConfig key settings:
-```
-target: ES2022
-module: ESNext
-moduleResolution: Node
-strict: false
-noImplicitAny: false
-strictNullChecks: false
-strictFunctionTypes: false
-types: ["@cloudflare/workers-types", "node"]
-```
-
-**Git Workflow**
-
-Commit format:
-```
-<type>: #<issue> <日本語説明>
-```
-Types: `feat`, `fix`.  
-Branch: `issue/<number>`.
-
-CI: GitHub Actions (macOS, Node 21.x).  
-Checks: `npm test`, `npm run lint`.  
-Pre-commit: husky + lint-staged (`eslint --fix` on `*.{ts,tsx}`).
-
-Commands:
-```
-npm run build
-npm run dev
-npm run lint
-npm run lint:fix
-npm test
-npm run deploy
-```
-
-PR base branch: `main`.
-
-**Issue Implementation Flow (from .claude/commands/implement.md)**
-
-Follow: Understand -> Plan -> Execute.  
-Be concise. Avoid verbose explanations. Prefer small diffs.  
-Keep logs in Japanese when the user writes in Japanese.  
-Maintain production quality even with token minimization.
+- 生成物 (`generated`, `status.openapi.json`, `status.zod.ts`) を手で編集しない
+- 未確認の推測で API 契約やエラー形式を変えない
+- hooks / CI を一時的に無効化した状態で品質保証済みと判断しない

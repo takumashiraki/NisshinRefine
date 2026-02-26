@@ -1,0 +1,4 @@
+interface:
+  display_name: 'D1 変更フロー'
+  short_description: '安全なD1スキーマ/infra/usecase更新手順を適用'
+  default_prompt: 'このD1関連変更を、リポジトリのレイヤードフローに従って実装し、エラー系とロールバック観点まで検証してください。'

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'API 契約フロー'
+  short_description: 'スキーマ更新から生成物同期までを実行'
+  default_prompt: 'API 契約フローに従って、スキーマ更新、OpenAPI 出力、Orval 再生成、生成物同期確認まで実施してください。'

@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Workers ベストプラクティス'
+  short_description: 'Workers実装を規約観点で監査'
+  default_prompt: 'Cloudflare Workersコードをレビューし、NisshinRefine規約と最新仕様に照らして改善点を示してください。'

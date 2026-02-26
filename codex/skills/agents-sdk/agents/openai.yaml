@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Agents SDK（NisshinRefine）'
+  short_description: 'Agents SDK導入とMCP連携を実装'
+  default_prompt: 'Agents SDKを使った実装を、NisshinRefineの構成と品質ゲートに合わせて進めてください。'
