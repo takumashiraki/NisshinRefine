@@ -1,16 +1,16 @@
 # API Communication Rules
 
-このプロジェクトの通信実装は、必ず Zod を起点に生成フローで管理する。
+このプロジェクトの通信実装は、必ず `Drizzle -> Contract Zod -> OpenAPI -> orval` の生成フローで管理する。
 
 ## 基本方針
 
 - 手書きで API 型や hooks を増やさない
-- 仕様変更は Zod/OpenAPI 定義から行う
+- 仕様変更は `packages/validation/specs/*.json` から行う
 - 生成物は直接編集しない（再生成で更新する）
 
 ## Frontend ルール
 
-- フロー: `zod -> openapi -> TanStack Query`
+- フロー: `spec -> contracts -> openapi -> TanStack Query`
 - 生成元: `packages/api-types/openapi/status.openapi.json`
 - 生成先:
   - `apps/frontend/src/features/status/api/generated/status.ts`
@@ -19,10 +19,11 @@
 
 ## Backend ルール
 
-- フロー: `zod -> openapi -> orval`
-- Zod/OpenAPI 定義:
-  - `packages/validation/src/openapi/*.ts`
-  - `apps/backend/src/schemas/*.ts`
+- フロー: `spec -> drizzle schema -> contract zod -> openapi`
+- 仕様入力:
+  - `packages/validation/specs/*.json`
+- Contract/OpenAPI 生成先:
+  - `packages/validation/src/generated/*`
 - OpenAPI エクスポート:
   - `apps/backend/src/app.ts` の `app.doc('/openapi', ...)`
   - `apps/backend/scripts/export-openapi.ts`
@@ -31,15 +32,21 @@
 
 ## 変更手順
 
-1. `packages/validation/src/openapi` と `apps/backend/src/schemas` を更新
-2. OpenAPI を再出力  
+1. `packages/validation/specs/*.json` を更新
+2. Contract/OpenAPI 用コードを再生成
+   `bun run generate:contracts`
+3. OpenAPI を再出力
    `bun run --cwd apps/backend openapi:export`
-3. orval を再生成  
+4. orval を再生成
    `bun run --cwd packages/api-types generate`
-4. フロントは生成された TanStack Query hooks を利用
+5. フロントは生成された TanStack Query hooks を利用
+
+## 冪等性
+
+- `bun run check:idempotent` を実行し、`packages/validation/src/generated` の再生成差分が出ないことを確認する
 
 ## エンドポイント命名
 
 - OpenAPI JSON: `/openapi`
 - Swagger UI: `/openapi/ui`
-- status API は users から独立したパスを使う（例: `/status/{statusId}`, `/status/{statusId}/summary`, `/status`）
+- status API は users から独立したパスを使う（`/status/{statusId}`, `/status/{statusId}/summary`, `/status`）

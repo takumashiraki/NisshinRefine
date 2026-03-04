@@ -22,7 +22,7 @@ export const getUser = async (
 
   let user
   try {
-    ;({ result: user } = await db.selectUser(env.backend, 'user', { userId: params.userId }))
+    ;({ result: user } = await db.selectUser(env.backend, { userId: params.userId }))
   } catch (error) {
     console.error('getUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')

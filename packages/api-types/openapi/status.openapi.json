@@ -9,22 +9,89 @@
       "User": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "example": 1
+          },
           "userId": {
             "type": "string",
+            "minLength": 1,
             "example": "user_001"
-          },
-          "id": {
-            "type": "number",
-            "example": 1
           },
           "password": {
             "type": "string",
+            "minLength": 1,
             "example": "hashed_password"
           }
         },
         "required": [
-          "userId",
           "id",
+          "userId",
+          "password"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "example": "Invalid Request"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "already exist"
+                },
+                "field": {
+                  "type": "string",
+                  "example": "userId"
+                }
+              },
+              "required": [
+                "message",
+                "field"
+              ]
+            }
+          }
+        },
+        "required": [
+          "error_code"
+        ]
+      },
+      "CreateUserBody": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "minLength": 1,
+            "example": "user_001"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "example": "secret1234"
+          }
+        },
+        "required": [
+          "userId",
+          "password"
+        ]
+      },
+      "UpdateUserBody": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "example": "updated_secret"
+          }
+        },
+        "required": [
           "password"
         ]
       },
@@ -47,7 +114,8 @@
         "type": "object",
         "properties": {
           "id": {
-            "type": "number",
+            "type": "integer",
+            "exclusiveMinimum": 0,
             "example": 1
           },
           "metricCode": {
@@ -55,6 +123,7 @@
           },
           "displayName": {
             "type": "string",
+            "minLength": 1,
             "example": "Strength"
           },
           "mappingType": {
@@ -65,7 +134,8 @@
             "example": "ratio"
           },
           "sortOrder": {
-            "type": "number",
+            "type": "integer",
+            "minimum": 0,
             "example": 10
           },
           "isActive": {
@@ -101,38 +171,6 @@
           "metrics"
         ]
       },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "error_code": {
-            "type": "string",
-            "example": "Invalid Request"
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "example": "invalid metricCode"
-                },
-                "field": {
-                  "type": "string",
-                  "example": "items[0].metricCode"
-                }
-              },
-              "required": [
-                "message",
-                "field"
-              ]
-            }
-          }
-        },
-        "required": [
-          "error_code"
-        ]
-      },
       "StatusSummaryItem": {
         "type": "object",
         "properties": {
@@ -141,11 +179,14 @@
           },
           "displayName": {
             "type": "string",
+            "minLength": 1,
             "example": "Health"
           },
           "score": {
             "type": "integer",
-            "example": 8
+            "minimum": 1,
+            "maximum": 10,
+            "example": 7
           }
         },
         "required": [
@@ -194,6 +235,8 @@
                 },
                 "score": {
                   "type": "integer",
+                  "minimum": 1,
+                  "maximum": 10,
                   "example": 7
                 }
               },
@@ -257,21 +300,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "string",
-                    "example": "user_001"
-                  },
-                  "password": {
-                    "type": "string",
-                    "example": "secret1234"
-                  }
-                },
-                "required": [
-                  "userId",
-                  "password"
-                ]
+                "$ref": "#/components/schemas/CreateUserBody"
               }
             }
           }
@@ -292,36 +321,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error_code": {
-                      "type": "string",
-                      "example": "Invalid Request"
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "already exist"
-                          },
-                          "field": {
-                            "type": "string",
-                            "example": "userId"
-                          }
-                        },
-                        "required": [
-                          "message",
-                          "field"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "error_code"
-                  ]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -331,36 +331,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error_code": {
-                      "type": "string",
-                      "example": "Invalid Request"
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "already exist"
-                          },
-                          "field": {
-                            "type": "string",
-                            "example": "userId"
-                          }
-                        },
-                        "required": [
-                          "message",
-                          "field"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "error_code"
-                  ]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -374,6 +345,7 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
               "example": "user_001"
             },
             "required": true,
@@ -397,36 +369,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error_code": {
-                      "type": "string",
-                      "example": "Invalid Request"
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "already exist"
-                          },
-                          "field": {
-                            "type": "string",
-                            "example": "userId"
-                          }
-                        },
-                        "required": [
-                          "message",
-                          "field"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "error_code"
-                  ]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -438,6 +381,7 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
               "example": "user_001"
             },
             "required": true,
@@ -449,16 +393,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "password": {
-                    "type": "string",
-                    "example": "updated_secret"
-                  }
-                },
-                "required": [
-                  "password"
-                ]
+                "$ref": "#/components/schemas/UpdateUserBody"
               }
             }
           }
@@ -479,36 +414,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error_code": {
-                      "type": "string",
-                      "example": "Invalid Request"
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "already exist"
-                          },
-                          "field": {
-                            "type": "string",
-                            "example": "userId"
-                          }
-                        },
-                        "required": [
-                          "message",
-                          "field"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "error_code"
-                  ]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -520,6 +426,7 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
               "example": "user_001"
             },
             "required": true,
@@ -543,36 +450,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error_code": {
-                      "type": "string",
-                      "example": "Invalid Request"
-                    },
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "message": {
-                            "type": "string",
-                            "example": "already exist"
-                          },
-                          "field": {
-                            "type": "string",
-                            "example": "userId"
-                          }
-                        },
-                        "required": [
-                          "message",
-                          "field"
-                        ]
-                      }
-                    }
-                  },
-                  "required": [
-                    "error_code"
-                  ]
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -586,6 +464,7 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
               "example": "status_001"
             },
             "required": true,
@@ -609,7 +488,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "error_code": {
+                          "type": "string",
+                          "example": "Invalid Request"
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "invalid metricCode"
+                              },
+                              "field": {
+                                "type": "string",
+                                "example": "items[0].metricCode"
+                              }
+                            },
+                            "required": [
+                              "message",
+                              "field"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -623,6 +534,7 @@
           {
             "schema": {
               "type": "string",
+              "minLength": 1,
               "example": "status_001"
             },
             "required": true,
@@ -655,7 +567,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "error_code": {
+                          "type": "string",
+                          "example": "Invalid Request"
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "invalid metricCode"
+                              },
+                              "field": {
+                                "type": "string",
+                                "example": "items[0].metricCode"
+                              }
+                            },
+                            "required": [
+                              "message",
+                              "field"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -690,7 +634,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "error_code": {
+                          "type": "string",
+                          "example": "Invalid Request"
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "invalid metricCode"
+                              },
+                              "field": {
+                                "type": "string",
+                                "example": "items[0].metricCode"
+                              }
+                            },
+                            "required": [
+                              "message",
+                              "field"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }
@@ -700,7 +676,39 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "properties": {
+                        "error_code": {
+                          "type": "string",
+                          "example": "Invalid Request"
+                        },
+                        "errors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "message": {
+                                "type": "string",
+                                "example": "invalid metricCode"
+                              },
+                              "field": {
+                                "type": "string",
+                                "example": "items[0].metricCode"
+                              }
+                            },
+                            "required": [
+                              "message",
+                              "field"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
               }
             }

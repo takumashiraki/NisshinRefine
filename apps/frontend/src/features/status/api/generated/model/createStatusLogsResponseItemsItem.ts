@@ -9,5 +9,9 @@ import type { MetricCode } from './metricCode';
 export type CreateStatusLogsResponseItemsItem = {
   metricCode: MetricCode;
   rawValue: number;
+  /**
+   * @minimum 1
+   * @maximum 10
+   */
   score: number;
 };

@@ -1,0 +1,57 @@
+{
+  "resource": "user",
+  "db": {
+    "tableName": "user",
+    "tableVarName": "usersTable",
+    "columns": [
+      {
+        "name": "id",
+        "type": "integer",
+        "primaryKey": true,
+        "autoIncrement": true,
+        "notNull": true
+      },
+      {
+        "name": "userId",
+        "type": "text",
+        "notNull": true
+      },
+      {
+        "name": "password",
+        "type": "text",
+        "notNull": true
+      }
+    ],
+    "uniqueIndexes": [
+      {
+        "name": "user_user_id_unique",
+        "columns": [
+          "userId"
+        ]
+      }
+    ]
+  },
+  "contract": {
+    "createInputFields": [
+      "userId",
+      "password"
+    ],
+    "updateInputFields": [
+      "password"
+    ],
+    "responseFields": [
+      "id",
+      "userId",
+      "password"
+    ]
+  },
+  "openapi": {
+    "examples": {
+      "id": 1,
+      "userId": "user_001",
+      "password": "hashed_password",
+      "createPassword": "secret1234",
+      "updatePassword": "updated_secret"
+    }
+  }
+}

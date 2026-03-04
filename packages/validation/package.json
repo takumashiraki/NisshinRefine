@@ -8,11 +8,14 @@
   "scripts": {
     "build": "echo 'validation: no build step yet'",
     "dev": "echo 'validation: no dev step'",
+    "generate:contracts": "bun run scripts/generate-contracts.ts",
     "lint": "oxlint src",
     "test": "echo 'validation: no tests yet'",
     "typecheck": "echo 'validation: typecheck skipped'"
   },
   "dependencies": {
+    "drizzle-orm": "^0.44.6",
+    "drizzle-zod": "^0.8.3",
     "zod": "^3.24.1",
     "@hono/zod-openapi": "^0.18.3"
   }

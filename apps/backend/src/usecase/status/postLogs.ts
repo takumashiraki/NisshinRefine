@@ -1,4 +1,5 @@
 import type { Context } from 'hono'
+import StatusDatabase from './../../infrastructure/status'
 import type { Env } from './../../app'
 import { errorResponse } from './../response'
 
@@ -58,21 +59,33 @@ export const postStatusLogs = async (
 ): Promise<Response> => {
   try {
     const payload = await c.req.json()
+
     if (!payload.items || payload.items.length === 0) {
       return errorResponse(c, 400, 'Invalid Request', 'items', 'items must not be empty')
     }
 
-    return c.json(
-      {
-        recordDate: payload.recordDate,
-        items: payload.items.map((item) => ({
-          metricCode: item.metricCode,
-          rawValue: item.rawValue,
-          score: toScore(item.metricCode, item.rawValue),
-        })),
-      },
-      201,
-    )
+    const db = new StatusDatabase()
+    const statusId = db.resolveStatusIdForPost()
+
+    const { result, error } = await db.saveStatusLogs(c.env.backend, statusId, {
+      recordDate: payload.recordDate,
+      items: payload.items.map((item) => ({
+        metricCode: item.metricCode,
+        rawValue: item.rawValue,
+        score: toScore(item.metricCode, item.rawValue),
+        note: item.note,
+      })),
+    })
+
+    if (error) {
+      return errorResponse(c, 400, 'Invalid Request', error.field, error.message)
+    }
+
+    if (!result) {
+      return errorResponse(c, 500, 'Internal Server Error', '', '')
+    }
+
+    return c.json(result, 201)
   } catch (error) {
     console.error('postStatusLogs failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
