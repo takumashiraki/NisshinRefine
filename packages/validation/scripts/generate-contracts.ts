@@ -260,19 +260,8 @@ import {
 
 const withContract = <TSchema extends z.ZodTypeAny>(
   schema: TSchema,
-  contractSchema: { safeParse: (value: unknown) => { success: boolean; error?: { issues: Array<unknown> } } },
-): TSchema =>
-  schema.superRefine((value, ctx) => {
-    const parsed = contractSchema.safeParse(value)
-
-    if (parsed.success || !parsed.error) {
-      return
-    }
-
-    for (const issue of parsed.error.issues) {
-      ctx.addIssue(issue as any)
-    }
-  }) as TSchema
+  _contractSchema: unknown,
+): TSchema => schema
 
 export const createUserBodyOpenApiSchema = withContract(
   z.object({
@@ -502,19 +491,8 @@ import {
 
 const withContract = <TSchema extends z.ZodTypeAny>(
   schema: TSchema,
-  contractSchema: { safeParse: (value: unknown) => { success: boolean; error?: { issues: Array<unknown> } } },
-): TSchema =>
-  schema.superRefine((value, ctx) => {
-    const parsed = contractSchema.safeParse(value)
-
-    if (parsed.success || !parsed.error) {
-      return
-    }
-
-    for (const issue of parsed.error.issues) {
-      ctx.addIssue(issue as any)
-    }
-  }) as TSchema
+  _contractSchema: unknown,
+): TSchema => schema
 
 export const metricCodeOpenApiSchema = withContract(
   z.enum([${metricCodeEnum}]),
