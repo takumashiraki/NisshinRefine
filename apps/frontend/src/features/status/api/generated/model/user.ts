@@ -6,7 +6,10 @@
  */
 
 export interface User {
-  userId: string;
+  /** */
   id: number;
+  /** @minLength 1 */
+  userId: string;
+  /** @minLength 1 */
   password: string;
 }

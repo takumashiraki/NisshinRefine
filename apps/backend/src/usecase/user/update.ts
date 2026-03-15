@@ -26,7 +26,7 @@ export const updateUser = async (
 
   let updated
   try {
-    ;({ result: updated } = await db.updateUser(env.backend, 'user', { userId: params.userId, password: payload.password }))
+    ;({ result: updated } = await db.updateUser(env.backend, { userId: params.userId, password: payload.password }))
   } catch (error) {
     console.error('updateUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')

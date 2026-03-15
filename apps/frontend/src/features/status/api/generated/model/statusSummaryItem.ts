@@ -8,6 +8,11 @@ import type { MetricCode } from './metricCode';
 
 export interface StatusSummaryItem {
   metricCode: MetricCode;
+  /** @minLength 1 */
   displayName: string;
+  /**
+   * @minimum 1
+   * @maximum 10
+   */
   score: number;
 }

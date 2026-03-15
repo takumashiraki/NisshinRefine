@@ -1,0 +1,209 @@
+{
+  "resource": "status",
+  "statusDefaultId": "status_default",
+  "enums": {
+    "metricCode": [
+      "strength",
+      "routine",
+      "health"
+    ],
+    "mappingType": [
+      "formula_fixed",
+      "manual_1_10"
+    ]
+  },
+  "db": {
+    "tables": [
+      {
+        "tableName": "status_metrics",
+        "tableVarName": "statusMetricsTable",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "primaryKey": true,
+            "autoIncrement": true,
+            "notNull": true
+          },
+          {
+            "name": "statusId",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "metricCode",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "displayName",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "mappingType",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "unit",
+            "type": "text",
+            "notNull": false
+          },
+          {
+            "name": "sortOrder",
+            "type": "integer",
+            "notNull": true
+          },
+          {
+            "name": "isActive",
+            "type": "integer",
+            "notNull": true,
+            "default": 1
+          },
+          {
+            "name": "createdAt",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "text",
+            "notNull": true
+          }
+        ],
+        "uniqueIndexes": [
+          {
+            "name": "status_metrics_status_metric_unique",
+            "columns": [
+              "statusId",
+              "metricCode"
+            ]
+          }
+        ],
+        "indexes": [
+          {
+            "name": "status_metrics_status_sort_idx",
+            "columns": [
+              "statusId",
+              "isActive",
+              "sortOrder"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "status_logs",
+        "tableVarName": "statusLogsTable",
+        "columns": [
+          {
+            "name": "id",
+            "type": "integer",
+            "primaryKey": true,
+            "autoIncrement": true,
+            "notNull": true
+          },
+          {
+            "name": "statusId",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "metricId",
+            "type": "integer",
+            "notNull": true,
+            "references": {
+              "tableVarName": "statusMetricsTable",
+              "column": "id"
+            }
+          },
+          {
+            "name": "recordDate",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "rawValue",
+            "type": "real",
+            "notNull": true
+          },
+          {
+            "name": "score",
+            "type": "integer",
+            "notNull": true
+          },
+          {
+            "name": "note",
+            "type": "text",
+            "notNull": false
+          },
+          {
+            "name": "createdAt",
+            "type": "text",
+            "notNull": true
+          },
+          {
+            "name": "updatedAt",
+            "type": "text",
+            "notNull": true
+          }
+        ],
+        "uniqueIndexes": [
+          {
+            "name": "status_logs_status_metric_date_unique",
+            "columns": [
+              "statusId",
+              "metricId",
+              "recordDate"
+            ]
+          }
+        ],
+        "indexes": [
+          {
+            "name": "status_logs_status_date_idx",
+            "columns": [
+              "statusId",
+              "recordDate"
+            ]
+          }
+        ]
+      }
+    ],
+    "seedMetrics": [
+      {
+        "metricCode": "strength",
+        "displayName": "Strength",
+        "mappingType": "formula_fixed",
+        "unit": "ratio",
+        "sortOrder": 10,
+        "isActive": 1
+      },
+      {
+        "metricCode": "routine",
+        "displayName": "Routine",
+        "mappingType": "formula_fixed",
+        "unit": "%",
+        "sortOrder": 20,
+        "isActive": 1
+      },
+      {
+        "metricCode": "health",
+        "displayName": "Health",
+        "mappingType": "formula_fixed",
+        "unit": "hour",
+        "sortOrder": 30,
+        "isActive": 1
+      }
+    ]
+  },
+  "openapi": {
+    "examples": {
+      "statusId": "status_001",
+      "recordDate": "2026-02-23",
+      "updatedAt": "2026-02-23T09:00:00.000Z",
+      "rawValue": 1.8,
+      "score": 7,
+      "note": "squat/deadlift/benchの平均"
+    }
+  }
+}

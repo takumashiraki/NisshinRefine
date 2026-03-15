@@ -7,86 +7,130 @@
 import * as zod from 'zod';
 
 export const postUsersBody = zod.object({
-  "userId": zod.string(),
-  "password": zod.string()
+  "userId": zod.string().min(1),
+  "password": zod.string().min(1)
 })
 
+
+
+
+
 export const postUsersResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
-  "password": zod.string()
+  "userId": zod.string().min(1),
+  "password": zod.string().min(1)
 })
+
+
+
 
 
 export const getUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().min(1)
 })
 
+
+
+
+
 export const getUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
-  "password": zod.string()
+  "userId": zod.string().min(1),
+  "password": zod.string().min(1)
 })
+
+
+
 
 
 export const putUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().min(1)
 })
+
+
+
 
 export const putUsersUserIdBody = zod.object({
-  "password": zod.string()
+  "password": zod.string().min(1)
 })
 
+
+
+
+
 export const putUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
-  "password": zod.string()
+  "userId": zod.string().min(1),
+  "password": zod.string().min(1)
 })
+
+
+
 
 
 export const deleteUsersUserIdParams = zod.object({
-  "userId": zod.string()
+  "userId": zod.string().min(1)
 })
 
+
+
+
+
 export const deleteUsersUserIdResponse = zod.object({
-  "userId": zod.string(),
   "id": zod.number(),
-  "password": zod.string()
+  "userId": zod.string().min(1),
+  "password": zod.string().min(1)
 })
+
+
+
 
 
 export const getStatusStatusIdParams = zod.object({
-  "statusId": zod.string()
+  "statusId": zod.string().min(1)
 })
+
+
+export const getStatusStatusIdResponseMetricsItemSortOrderMin = 0;
+
+
 
 export const getStatusStatusIdResponse = zod.object({
   "metrics": zod.array(zod.object({
   "id": zod.number(),
   "metricCode": zod.enum(['strength', 'routine', 'health']),
-  "displayName": zod.string(),
+  "displayName": zod.string().min(1),
   "mappingType": zod.enum(['formula_fixed', 'manual_1_10']),
   "unit": zod.string().optional(),
-  "sortOrder": zod.number(),
+  "sortOrder": zod.number().min(getStatusStatusIdResponseMetricsItemSortOrderMin),
   "isActive": zod.boolean(),
   "updatedAt": zod.string()
 }))
 })
 
 
+
+
+
 export const getStatusStatusIdSummaryParams = zod.object({
-  "statusId": zod.string()
+  "statusId": zod.string().min(1)
 })
 
 export const getStatusStatusIdSummaryQueryParams = zod.object({
   "date": zod.string().optional()
 })
 
+
+export const getStatusStatusIdSummaryResponseStatusesItemScoreMax = 10;
+
+
+
 export const getStatusStatusIdSummaryResponse = zod.object({
   "date": zod.string(),
   "statuses": zod.array(zod.object({
   "metricCode": zod.enum(['strength', 'routine', 'health']),
-  "displayName": zod.string(),
-  "score": zod.number()
+  "displayName": zod.string().min(1),
+  "score": zod.number().min(1).max(getStatusStatusIdSummaryResponseStatusesItemScoreMax)
 }))
 })
 

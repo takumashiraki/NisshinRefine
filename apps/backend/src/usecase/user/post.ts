@@ -23,7 +23,7 @@ export const createUser = async (
 
   let existing
   try {
-    ;({ result: existing } = await db.selectUser(env.backend, 'user', { userId: payload.userId }))
+    ;({ result: existing } = await db.selectUser(env.backend, { userId: payload.userId }))
   } catch (error) {
     console.error('selectUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')
@@ -35,7 +35,7 @@ export const createUser = async (
 
   let created
   try {
-    ;({ result: created } = await db.createUser(env.backend, 'user', payload))
+    ;({ result: created } = await db.createUser(env.backend, payload))
   } catch (error) {
     console.error('createUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')

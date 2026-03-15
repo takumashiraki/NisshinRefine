@@ -6,6 +6,8 @@
   "scripts": {
     "build": "echo 'backend: build command placeholder'",
     "dev": "wrangler dev",
+    "db:migrate:local": "npx wrangler d1 migrations apply nisshin-refine --local",
+    "db:migrate:remote": "npx wrangler d1 migrations apply nisshin-refine --remote",
     "openapi:export": "bun run scripts/export-openapi.ts",
     "lint": "oxlint src scripts",
     "test": "echo 'backend: test placeholder'",
@@ -19,6 +21,7 @@
     "@hono/zod-openapi": "^0.18.3",
     "@hono/swagger-ui": "^0.5.0",
     "@nisshin/validation": "workspace:*",
+    "drizzle-orm": "^0.44.6",
     "zod": "^3.24.1"
   }
 }

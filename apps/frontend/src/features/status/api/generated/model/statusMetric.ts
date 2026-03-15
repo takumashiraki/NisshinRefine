@@ -8,11 +8,14 @@ import type { MetricCode } from './metricCode';
 import type { MappingType } from './mappingType';
 
 export interface StatusMetric {
+  /** */
   id: number;
   metricCode: MetricCode;
+  /** @minLength 1 */
   displayName: string;
   mappingType: MappingType;
   unit?: string;
+  /** @minimum 0 */
   sortOrder: number;
   isActive: boolean;
   updatedAt: string;

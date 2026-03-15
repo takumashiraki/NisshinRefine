@@ -22,7 +22,7 @@ export const deleteUser = async (
 
   let deleted
   try {
-    ;({ result: deleted } = await db.deleteUser(env.backend, 'user', { userId: params.userId }))
+    ;({ result: deleted } = await db.deleteUser(env.backend, { userId: params.userId }))
   } catch (error) {
     console.error('deleteUser failed', error)
     return errorResponse(c, 500, 'Internal Server Error', '', '')

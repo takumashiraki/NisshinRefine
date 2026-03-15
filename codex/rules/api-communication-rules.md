@@ -7,6 +7,8 @@
 
 参照コマンド:
 
+- `bun run generate:contracts`
 - `bun run --cwd apps/backend openapi:export`
 - `bun run --cwd packages/api-types generate`
 - `bun run generate:api-types`
+- `bun run check:idempotent`
