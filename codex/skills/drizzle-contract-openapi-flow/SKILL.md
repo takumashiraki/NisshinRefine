@@ -1,39 +1,44 @@
 ---
 name: drizzle-contract-openapi-flow
-description: 仕様書駆動で Drizzle(テーブル) -> Contract Zod(抽象化) -> OpenAPI を構築し、backend 実装と generated 同期まで一貫実行する。発火: API追加/変更、specs更新、D1永続化、OpenAPI/orval再生成、冪等性確認。
+description: Drizzle(テーブル) -> Contract Zod(抽象化) -> OpenAPI の一方向フローで API を実装し、backend と generated を同期する。Use when: specs/*.json の追加/変更、API追加/変更、D1永続化実装、OpenAPI/orval再生成、check:idempotent 失敗対応。
 ---
 
 # Drizzle Contract OpenAPI Flow
 
-## 入力前提
+## 実行前に確認する
 
-- 仕様の正本を `packages/validation/specs/*.json` で定義する
-- 既存 API 互換性の方針（維持/破壊的変更）を明確にする
-- 生成物の手編集を行わない
+- 仕様の正本を `packages/validation/specs/*.json` に置く
+- API 互換性方針（維持/破壊的変更）を明確にする
+- 生成物を手編集しない
 
-## 実行ステップ
+## 参照を読み分ける
 
-1. 仕様を定義する
+- 仕様と実装例を確認するときは `references/spec-and-flow.md` を読む
+- 既存の生成結果と整合しないときは、同ファイルの「冪等性確認」節を優先する
+
+## 実装する
+
+1. `specs/*.json` を更新する
 - `packages/validation/specs/user.spec.json`
 - `packages/validation/specs/status.spec.json`
-- 新規 resource を追加する場合は `resource` ごとに spec ファイルを追加する
+- 新規 resource は `resource` ごとに spec を追加する
 
-2. Contract 生成を実行する
+2. Contract/DB/OpenAPI を生成する
 - `bun run generate:contracts`
 - 生成先:
   - `packages/validation/src/generated/db/*`
   - `packages/validation/src/generated/contract/*`
   - `packages/validation/src/generated/openapi/*`
 
-3. backend ルート定義を OpenAPI 層参照へ統一する
-- `apps/backend/src/schemas/*.ts` では `@nisshin/validation` の OpenAPI schema を参照する
-- route 定義内でローカル手書き schema を増やさない
+3. backend ルートを OpenAPI 層参照に統一する
+- `apps/backend/src/schemas/*.ts` で `@nisshin/validation` の OpenAPI schema を使う
+- route 定義にローカル手書き schema を増やさない
 
 4. backend 永続化を実装する
 - Drizzle client: `apps/backend/src/infrastructure/db/client.ts`
-- infrastructure: `apps/backend/src/infrastructure/*.ts`
-- usecase: `apps/backend/src/usecase/*`
-- status の `POST /status` はサーバー側 `status_default` を使う
+- query 実装: `apps/backend/src/infrastructure/*.ts`
+- usecase 実装: `apps/backend/src/usecase/*`
+- `POST /status` はサーバー側 `status_default` を使う
 
 5. OpenAPI と orval 生成物を同期する
 - `bun run generate:openapi`
@@ -46,27 +51,23 @@ description: 仕様書駆動で Drizzle(テーブル) -> Contract Zod(抽象化)
 - `bun run typecheck`
 - `bun run test`
 
-## 制約
-
-- `packages/validation/src/generated/**` は手編集しない
-- `packages/api-types/openapi/status.openapi.json` は生成でのみ更新する
-- `apps/frontend/src/features/status/api/generated/**` は生成でのみ更新する
-- 変更は spec と非生成コードに限定する
-
-## 失敗時の復旧手順
+## 失敗時に復旧する
 
 1. `bun run generate:contracts` を再実行する
 2. `bun run generate:openapi` を再実行する
 3. `bun run generate:api-types` を再実行する
-4. 生成差分が不安定なら `bun run check:idempotent` で再現性を確認する
+4. `bun run check:idempotent` で再現性を確認する
 
-## 出力契約
+## 制約を守る
+
+- `packages/validation/src/generated/**` を手編集しない
+- `packages/api-types/openapi/status.openapi.json` を手編集しない
+- `apps/frontend/src/features/status/api/generated/**` を手編集しない
+- 変更を spec と非生成コードに限定する
+
+## 結果を報告する
 
 - 変更した spec / schema / infrastructure / generated ファイルを列挙する
 - API 互換性影響を明記する
 - 実行した検証コマンドと結果を明記する
 - 未実行の検証があれば理由を明記する
-
-## 参照
-
-- 詳細仕様と例: `references/spec-and-flow.md`

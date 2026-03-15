@@ -1,4 +1,4 @@
 interface:
-  display_name: 'Drizzle Contract API Flow'
-  short_description: '仕様書からDrizzle/Zod/OpenAPIを同期生成'
-  default_prompt: 'Use $drizzle-contract-openapi-flow to implement APIs from specs and sync Drizzle, Contract Zod, OpenAPI, and generated clients deterministically.'
+  display_name: "Drizzle Contract OpenAPI Flow"
+  short_description: "Implement APIs from specs with Drizzle/OpenAPI sync"
+  default_prompt: "Use $drizzle-contract-openapi-flow to implement API changes from specs and keep Drizzle, Contract Zod, OpenAPI, and generated clients synchronized deterministically."
