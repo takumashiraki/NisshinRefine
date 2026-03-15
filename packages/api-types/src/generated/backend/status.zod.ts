@@ -138,7 +138,9 @@ export const getStatusStatusIdSummaryResponse = zod.object({
 
 
 
+
 export const postStatusBody = zod.object({
+  "statusId": zod.string().min(1),
   "recordDate": zod.string(),
   "items": zod.array(zod.object({
   "metricCode": zod.enum(['strength', 'routine', 'health']),

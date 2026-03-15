@@ -22,6 +22,7 @@
     "check:staged": "sh scripts/codex/check-staged.sh",
     "check:prepush": "sh scripts/codex/check-prepush.sh",
     "check:generated:clean": "sh scripts/codex/check-generated-clean.sh",
+    "check:generated:no-new-diff": "sh scripts/codex/check-generated-no-new-diff.sh",
     "test": "bun run --filter '*' test",
     "typecheck": "bun run --filter '*' typecheck"
   },

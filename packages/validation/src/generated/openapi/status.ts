@@ -72,6 +72,7 @@ export const statusSummaryResponseOpenApiSchema = withContract(
 
 export const createStatusLogsRequestOpenApiSchema = withContract(
   z.object({
+    statusId: z.string().min(1).openapi({ example: 'status_001' }),
     recordDate: z.string().openapi({ example: '2026-02-23' }),
     items: z
       .array(

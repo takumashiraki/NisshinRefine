@@ -20,3 +20,9 @@
 - 問題: OpenAPI 層の `withContract` で `contractSchema.safeParse()` を実行すると `keyValidator._parse is not a function` で 500 が発生した
 - 原因: `drizzle-zod` 経由で得た子スキーマが Zod v4 系内部構造（`_zod`）を持ち、Zod v3 互換パーサー（`_parse`）と混在したため
 - 再発防止ルール: OpenAPI ルート実行時に Contract の `safeParse` を直接呼ばない。契約連携は生成時の参照関係に限定し、互換検証は別途テストで担保する
+- 問題: API リクエスト項目（例: `statusId`）の追加時に、手書き schema だけ更新すると generated と実装の齟齬が起きる
+- 原因: `packages/validation/scripts/generate-contracts.ts` と `packages/validation/src/{domain,api}` の複数ソースが契約定義に関与しているため
+- 再発防止ルール: API 契約変更時は「generator修正 -> generate:all -> generated差分確認 -> backend usecase反映」を1セットで実施する
+- 問題: `mapping_type` のような業務計算ルールが未確定だと、実装修正で手戻りが起きる
+- 原因: Issue本体に分岐条件と式がなく、実装時に推測が必要になるため
+- 再発防止ルール: 計算仕様は先に専用Issueを起票し、暫定実装には参照Issue番号を残して後続差し替えを追跡可能にする

@@ -5,40 +5,6 @@ import { errorResponse } from './../response'
 
 type MetricCode = 'strength' | 'routine' | 'health'
 
-const clampScore = (value: number): number => {
-  if (value < 1) {
-    return 1
-  }
-
-  if (value > 10) {
-    return 10
-  }
-
-  return Math.round(value)
-}
-
-const toScore = (metricCode: MetricCode, rawValue: number): number => {
-  if (metricCode === 'strength') {
-    return clampScore(rawValue * 4)
-  }
-
-  if (metricCode === 'routine') {
-    return clampScore(rawValue / 10)
-  }
-
-  if (rawValue >= 7 && rawValue <= 8) {
-    return 10
-  }
-  if ((rawValue >= 6 && rawValue < 7) || (rawValue > 8 && rawValue <= 9)) {
-    return 8
-  }
-  if ((rawValue >= 5 && rawValue < 6) || (rawValue > 9 && rawValue <= 10)) {
-    return 6
-  }
-
-  return 3
-}
-
 export const postStatusLogs = async (
   c: Context<
     Env,
@@ -46,6 +12,7 @@ export const postStatusLogs = async (
     {
       in: {
         json: {
+          statusId: string
           recordDate: string
           items: {
             metricCode: MetricCode
@@ -64,15 +31,18 @@ export const postStatusLogs = async (
       return errorResponse(c, 400, 'Invalid Request', 'items', 'items must not be empty')
     }
 
+    if (!payload.statusId || payload.statusId.trim().length === 0) {
+      return errorResponse(c, 400, 'Invalid Request', 'statusId', 'statusId must not be empty')
+    }
+
     const db = new StatusDatabase()
-    const statusId = db.resolveStatusIdForPost()
+    const statusId = payload.statusId.trim()
 
     const { result, error } = await db.saveStatusLogs(c.env.backend, statusId, {
       recordDate: payload.recordDate,
       items: payload.items.map((item) => ({
         metricCode: item.metricCode,
         rawValue: item.rawValue,
-        score: toScore(item.metricCode, item.rawValue),
         note: item.note,
       })),
     })

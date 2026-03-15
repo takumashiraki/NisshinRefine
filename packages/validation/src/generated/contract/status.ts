@@ -53,6 +53,7 @@ export const statusLogCreateItemInputContractSchema = z.object({
 })
 
 export const statusLogsCreateInputContractSchema = z.object({
+  statusId: statusMetricSelectBaseSchema.shape.statusId.min(1),
   recordDate: statusLogInsertBaseSchema.shape.recordDate.regex(/^\d{4}-\d{2}-\d{2}$/),
   items: z.array(statusLogCreateItemInputContractSchema).min(1),
 })

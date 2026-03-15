@@ -1,5 +1,5 @@
 import { and, asc, eq, inArray } from 'drizzle-orm'
-import { STATUS_DEFAULT_ID, statusLogsTable, statusMetricsTable, statusSeedMetrics } from '@nisshin/validation'
+import { statusLogsTable, statusMetricsTable, statusSeedMetrics } from '@nisshin/validation'
 import { createDb } from './db/client'
 
 type MetricCode = 'strength' | 'routine' | 'health'
@@ -24,8 +24,54 @@ interface SummaryStatus {
 interface StatusLogInput {
   metricCode: MetricCode
   rawValue: number
-  score: number
   note?: string
+}
+
+const clampScore = (value: number): number => {
+  if (value < 1) {
+    return 1
+  }
+
+  if (value > 10) {
+    return 10
+  }
+
+  return Math.round(value)
+}
+
+const toScoreByFormulaFixedUnit = (unit: string | null | undefined, rawValue: number): number => {
+  if (unit === 'ratio') {
+    return clampScore(rawValue * 4)
+  }
+
+  if (unit === '%') {
+    return clampScore(rawValue / 10)
+  }
+
+  if (unit === 'hour') {
+    if (rawValue >= 7 && rawValue <= 8) {
+      return 10
+    }
+    if ((rawValue >= 6 && rawValue < 7) || (rawValue > 8 && rawValue <= 9)) {
+      return 8
+    }
+    if ((rawValue >= 5 && rawValue < 6) || (rawValue > 9 && rawValue <= 10)) {
+      return 6
+    }
+
+    return 3
+  }
+
+  // Fallback for currently undefined fixed-formula units. Detailed policy is tracked in issue #13.
+  return clampScore(rawValue)
+}
+
+const toScoreByMappingType = (mappingType: 'formula_fixed' | 'manual_1_10', unit: string | null | undefined, rawValue: number): number => {
+  if (mappingType === 'manual_1_10') {
+    return clampScore(rawValue)
+  }
+
+  return toScoreByFormulaFixedUnit(unit, rawValue)
 }
 
 class StatusDatabase {
@@ -57,10 +103,6 @@ class StatusDatabase {
         updatedAt: now,
       })),
     )
-  }
-
-  resolveStatusIdForPost(): string {
-    return STATUS_DEFAULT_ID
   }
 
   async getMetrics(dbBinding: unknown, statusId: string): Promise<{ result: StatusMetric[] | null }> {
@@ -155,11 +197,22 @@ class StatusDatabase {
         .select({
           id: statusMetricsTable.id,
           metricCode: statusMetricsTable.metricCode,
+          mappingType: statusMetricsTable.mappingType,
+          unit: statusMetricsTable.unit,
         })
         .from(statusMetricsTable)
         .where(and(eq(statusMetricsTable.statusId, statusId), inArray(statusMetricsTable.metricCode, metricCodes)))
 
-      const metricByCode = new Map(metrics.map((metric) => [metric.metricCode as MetricCode, metric.id]))
+      const metricByCode = new Map(
+        metrics.map((metric) => [
+          metric.metricCode as MetricCode,
+          {
+            id: metric.id,
+            mappingType: metric.mappingType as 'formula_fixed' | 'manual_1_10',
+            unit: metric.unit,
+          },
+        ]),
+      )
 
       for (const item of payload.items) {
         if (!metricByCode.has(item.metricCode)) {
@@ -177,9 +230,9 @@ class StatusDatabase {
       const savedItems: Array<{ metricCode: MetricCode; rawValue: number; score: number }> = []
 
       for (const item of payload.items) {
-        const metricId = metricByCode.get(item.metricCode)
+        const metric = metricByCode.get(item.metricCode)
 
-        if (!metricId) {
+        if (!metric) {
           return {
             result: null,
             error: {
@@ -189,14 +242,16 @@ class StatusDatabase {
           }
         }
 
+        const score = toScoreByMappingType(metric.mappingType, metric.unit, item.rawValue)
+
         const [saved] = await db
           .insert(statusLogsTable)
           .values({
             statusId,
-            metricId,
+            metricId: metric.id,
             recordDate: payload.recordDate,
             rawValue: item.rawValue,
-            score: item.score,
+            score,
             note: item.note ?? null,
             createdAt: now,
             updatedAt: now,
@@ -205,7 +260,7 @@ class StatusDatabase {
             target: [statusLogsTable.statusId, statusLogsTable.metricId, statusLogsTable.recordDate],
             set: {
               rawValue: item.rawValue,
-              score: item.score,
+              score,
               note: item.note ?? null,
               updatedAt: now,
             },
@@ -218,7 +273,7 @@ class StatusDatabase {
         savedItems.push({
           metricCode: item.metricCode,
           rawValue: saved?.rawValue ?? item.rawValue,
-          score: saved?.score ?? item.score,
+          score: saved?.score ?? score,
         })
       }
 

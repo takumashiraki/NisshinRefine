@@ -24,6 +24,7 @@ export const statusSummaryApiSchema = z.object({
 })
 
 export const createStatusLogsRequestApiSchema = z.object({
+  statusId: z.string().min(1),
   recordDate: z.string(),
   items: z.array(
     z.object({

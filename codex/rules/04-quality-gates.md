@@ -31,6 +31,17 @@
 - `packages/api-types/src/generated/backend/status.zod.ts`
 - `apps/frontend/src/features/status/api/generated/`
 
+`check:generated:no-new-diff` は作業中確認用で、以下の再生成前後の `git diff --binary` が一致することを検査する:
+
+- `packages/api-types/openapi/status.openapi.json`
+- `packages/api-types/src/generated/backend/status.zod.ts`
+- `apps/frontend/src/features/status/api/generated/`
+
+用途の原則:
+
+- `check:generated:clean`: pre-push/CI の厳格ゲート専用
+- `check:generated:no-new-diff`: 未コミット差分がある作業中の確認用
+
 ## 失敗時の扱い
 
 - 失敗時はログの再現コマンドをローカルで実行

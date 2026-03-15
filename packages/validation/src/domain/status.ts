@@ -23,6 +23,7 @@ export const statusLogItemInputDomainSchema = z.object({
 })
 
 export const createStatusLogsDomainSchema = z.object({
+  statusId: z.string().min(1),
   recordDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   items: z.array(statusLogItemInputDomainSchema).min(1),
 })

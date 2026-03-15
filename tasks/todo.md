@@ -66,3 +66,36 @@
   - `bun run test`: placeholder 実行
   - `POST /status` -> `GET /status/status_default` -> `GET /status/status_default/summary?date=2026-03-15`: 成功
   - `POST/GET/PUT/DELETE /users/{userId}`: 成功
+
+## Issue #7: status機能のDB連携（取得/保存）を完了する
+
+### Plan
+- [x] Issue #7 の要件と現状差分を確認する
+- [x] `POST /status` のリクエストに `statusId` を追加する（contract/openapi/orval同期）
+- [x] `postStatusLogs` で `statusId` を受け取り、保存対象ステータスを切り替える
+- [x] `resolveStatusIdForPost` 依存を解消し、`statusId` 指定保存へ統一する
+- [x] OpenAPI / 生成型を再生成し、生成物差分を同期する
+- [x] `mapping_type` スコア式仕様タスクを起票する（Issue #13）
+- [x] `mapping_type` 参照でスコア計算する実装へ置換する（`metricCode` 固定分岐を除去）
+
+### Review
+- 実行コマンド:
+  - `gh issue create --repo takumashiraki/NisshinRefine ...`
+  - `bun run generate:all`
+  - `bun run check:generated:no-new-diff`
+  - `bun run check:generated:clean`
+  - `bun run check:prepush`
+  - `bun run check:idempotent`
+  - `bun run lint`
+  - `bun run typecheck`
+  - `bun run test`
+- 結果:
+  - `gh issue create`: 成功（https://github.com/takumashiraki/NisshinRefine/issues/13）
+  - `generate:all`: 成功
+  - `check:generated:no-new-diff`: 成功（再生成で追加差分なし）
+  - `check:generated:clean`: 失敗（スクリプト仕様上、生成物に未コミット差分がある開発中状態では fail）
+  - `check:prepush`: 失敗（最終段の `check:generated:clean` で厳格停止し、既存仕様どおり）
+  - `check:idempotent`: 成功
+  - `lint`: warning 1 件、error 0 件（既存 `apps/frontend/next-env.d.ts`）
+  - `typecheck`: すべて placeholder/skip 実行で成功
+  - `test`: すべて placeholder 実行で成功

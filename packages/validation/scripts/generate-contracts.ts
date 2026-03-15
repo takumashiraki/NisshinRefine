@@ -444,6 +444,7 @@ export const statusLogCreateItemInputContractSchema = z.object({
 })
 
 export const statusLogsCreateInputContractSchema = z.object({
+  statusId: statusMetricSelectBaseSchema.shape.statusId.min(1),
   recordDate: statusLogInsertBaseSchema.shape.recordDate.regex(/^\\d{4}-\\d{2}-\\d{2}$/),
   items: z.array(statusLogCreateItemInputContractSchema).min(1),
 })
@@ -546,6 +547,7 @@ export const statusSummaryResponseOpenApiSchema = withContract(
 
 export const createStatusLogsRequestOpenApiSchema = withContract(
   z.object({
+    statusId: z.string().min(1).openapi({ example: '${spec.openapi.examples.statusId}' }),
     recordDate: z.string().openapi({ example: '${spec.openapi.examples.recordDate}' }),
     items: z
       .array(

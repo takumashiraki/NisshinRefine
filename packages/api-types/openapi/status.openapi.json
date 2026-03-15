@@ -256,6 +256,11 @@
       "CreateStatusLogsRequest": {
         "type": "object",
         "properties": {
+          "statusId": {
+            "type": "string",
+            "minLength": 1,
+            "example": "status_001"
+          },
           "recordDate": {
             "type": "string",
             "example": "2026-02-23"
@@ -286,6 +291,7 @@
           }
         },
         "required": [
+          "statusId",
           "recordDate",
           "items"
         ]
