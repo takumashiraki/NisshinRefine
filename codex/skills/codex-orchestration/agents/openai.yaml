@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Codex オーケストレーション'
+  short_description: '複合依頼を分割し並列調査を標準化'
+  default_prompt: '複合依頼としてタスクを分割し、parallel調査と統合手順で実装計画を確定してください。'

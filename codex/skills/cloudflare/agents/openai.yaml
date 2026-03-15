@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Cloudflare（NisshinRefine）'
+  short_description: 'Cloudflare依頼を適切なSkillへルーティング'
+  default_prompt: 'Cloudflare関連依頼をルーティングし、必要な下位Skillを適用して実装またはレビューを進めてください。'

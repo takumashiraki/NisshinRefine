@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+if command -v bun >/dev/null 2>&1; then
+  BUN_BIN="bun"
+elif [ -x "$HOME/.bun/bin/bun" ]; then
+  BUN_BIN="$HOME/.bun/bin/bun"
+else
+  echo "Error: bun が見つかりません。PATH を確認するか https://bun.sh からインストールしてください。" >&2
+  exit 127
+fi
+
+"$BUN_BIN" run check:staged

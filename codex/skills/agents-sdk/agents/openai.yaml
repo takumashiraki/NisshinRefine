@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Agents SDK（NisshinRefine）'
+  short_description: 'Agents SDK導入と拡張を実装'
+  default_prompt: 'Agents SDK導入または拡張として、state設計とMCP連携を含めて実装・検証してください。'
